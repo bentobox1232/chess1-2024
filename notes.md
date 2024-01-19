@@ -13,3 +13,7 @@ do the chess class does not have subclasses, make of 6 move calculators
 
 the chess piece class with the given variables, calling the calculator, as a state/strategy pattern
 
+Collection:
+    arrayList, is ideal for that. so then implementation any return
+    try to return the least specific as you can, but still have the functionality
+
