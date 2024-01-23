@@ -80,11 +80,10 @@ public class ChessBoard {
         chessBoard[7][6] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
         chessBoard[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
 
-
-
-
-
-
-
+        for (int i = 3; i < 7; i++){
+            for (int j = 0; j < 8; j++){
+                chessBoard[i][j] = null;
+            }
+        }
     }
 }
