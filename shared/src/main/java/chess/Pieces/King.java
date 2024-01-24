@@ -27,7 +27,6 @@ public class King implements ChessPieceInterface {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> validMoves = new HashSet<>();
 
-        // Check possible moves in all directions (horizontally, vertically, and diagonally)
         addKingMoves(board, myPosition, validMoves, 1, 0);
         addKingMoves(board, myPosition, validMoves, -1, 0);
         addKingMoves(board, myPosition, validMoves, 0, 1);

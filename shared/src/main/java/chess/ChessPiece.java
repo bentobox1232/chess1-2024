@@ -91,6 +91,9 @@ public class ChessPiece {
         } else if (this.type == PieceType.ROOK) {
             Rook rook = new Rook(this.pieceColor);
             return rook.pieceMoves(board,myPosition);
+        } else if (this.type == PieceType.QUEEN) {
+            Queen queen = new Queen(this.pieceColor);
+            return queen.pieceMoves(board,myPosition);
         }
         else {
             throw new RuntimeException("Not implemented");
