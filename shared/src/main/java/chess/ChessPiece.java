@@ -1,7 +1,11 @@
 package chess;
 
+import chess.Pieces.Bishop;
+
 import java.util.Collection;
 import java.util.Objects;
+
+
 
 /**
  * Represents a single chess piece
@@ -72,6 +76,11 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        if (this.type == PieceType.BISHOP) {
+            Bishop bishop = new Bishop(this.pieceColor);
+            return bishop.pieceMoves(board, myPosition);
+        } else {
+            throw new RuntimeException("Not implemented");
+        }
     }
 }
