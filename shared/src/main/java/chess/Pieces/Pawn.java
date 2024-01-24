@@ -80,7 +80,7 @@ public class Pawn implements ChessPieceInterface {
                 if (isPromotionRow(newRow)) {
                     addPromotionMoves(validMoves, myPosition, endPosition);
                 } else {
-                    validMoves.add(new ChessMove(myPosition, endPosition, targetPiece.getPieceType()));
+                    validMoves.add(new ChessMove(myPosition, endPosition, null));
                 }
             }
         }
