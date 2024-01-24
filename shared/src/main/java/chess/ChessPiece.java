@@ -1,8 +1,6 @@
 package chess;
 
-import chess.Pieces.Bishop;
-import chess.Pieces.King;
-import chess.Pieces.Pawn;
+import chess.Pieces.*;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -87,6 +85,12 @@ public class ChessPiece {
         } else if (this.type == PieceType.PAWN) {
             Pawn pawn = new Pawn(this.pieceColor);
             return pawn.pieceMoves(board,myPosition);
+        } else if (this.type == PieceType.KNIGHT) {
+            Knight knight = new Knight(this.pieceColor);
+            return knight.pieceMoves(board,myPosition);
+        } else if (this.type == PieceType.ROOK) {
+            Rook rook = new Rook(this.pieceColor);
+            return rook.pieceMoves(board,myPosition);
         }
         else {
             throw new RuntimeException("Not implemented");
