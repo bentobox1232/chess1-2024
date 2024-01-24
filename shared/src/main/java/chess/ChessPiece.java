@@ -1,6 +1,7 @@
 package chess;
 
 import chess.Pieces.Bishop;
+import chess.Pieces.King;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -79,7 +80,11 @@ public class ChessPiece {
         if (this.type == PieceType.BISHOP) {
             Bishop bishop = new Bishop(this.pieceColor);
             return bishop.pieceMoves(board, myPosition);
-        } else {
+        } else if (this.type == PieceType.KING) {
+            King king = new King(this.pieceColor);
+            return king.pieceMoves(board,myPosition);
+        }
+        else {
             throw new RuntimeException("Not implemented");
         }
     }
