@@ -105,14 +105,18 @@ public class ChessBoard {
     }
 
 
-    public void makeMove(ChessMove move) throws InvalidMoveException {
+    public void makeMove(ChessMove move, ChessGame.TeamColor teamColor) throws InvalidMoveException {
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
 
         ChessPiece piece = getPiece(startPosition);
 
         if (piece != null) {
-            addPiece(endPosition, piece);
+            if (move.getPromotionPiece() != null) {
+                addPiece(endPosition, new ChessPiece(teamColor ,move.getPromotionPiece()));
+            } else {
+                addPiece(endPosition, piece);
+            }
             addPiece(startPosition, null);
         } else {
             throw new InvalidMoveException("No piece at the starting position");
