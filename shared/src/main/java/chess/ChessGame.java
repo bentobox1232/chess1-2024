@@ -214,7 +214,40 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = findKingPosition(teamColor, "");
+
+        if (kingPosition.getColumn() == -1 & kingPosition.getRow() == -1) {
+            return false;
+        }
+
+        if(!isInCheck(teamColor)) {
+            return false;
+        }
+
+        ChessPiece piece = chessBoard.getPiece(kingPosition);
+
+        Collection<ChessMove> moves = piece.pieceMoves(chessBoard, kingPosition);
+        Iterator<ChessMove> iterator = moves.iterator();
+        while(iterator.hasNext()) {
+            ChessMove move = iterator.next();
+            try {
+                // Create a temporary board to simulate the move
+                tempBoard = new ChessBoard(chessBoard);
+                tempBoard.makeMove(move, teamColor);
+
+                // Check if the move puts the king in check
+                if (isCheck(teamColor)) {
+                    iterator.remove(); // Remove moves that leave the king in check
+                }
+            } catch (InvalidMoveException e) {
+                iterator.remove(); // Remove moves that are invalid
+            }
+        }
+
+        if(moves.isEmpty()){
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -225,7 +258,40 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = findKingPosition(teamColor, "");
+
+        if (kingPosition.getColumn() == -1 & kingPosition.getRow() == -1) {
+            return false;
+        }
+
+        if(isInCheck(teamColor)) {
+            return false;
+        }
+
+        ChessPiece piece = chessBoard.getPiece(kingPosition);
+
+        Collection<ChessMove> moves = piece.pieceMoves(chessBoard, kingPosition);
+        Iterator<ChessMove> iterator = moves.iterator();
+        while(iterator.hasNext()) {
+            ChessMove move = iterator.next();
+            try {
+                // Create a temporary board to simulate the move
+                tempBoard = new ChessBoard(chessBoard);
+                tempBoard.makeMove(move, teamColor);
+
+                // Check if the move puts the king in check
+                if (isCheck(teamColor)) {
+                    iterator.remove(); // Remove moves that leave the king in check
+                }
+            } catch (InvalidMoveException e) {
+                iterator.remove(); // Remove moves that are invalid
+            }
+        }
+
+        if(moves.isEmpty()){
+            return true;
+        }
+        return false;
     }
 
     /**
