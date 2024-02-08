@@ -15,6 +15,16 @@ public class ChessBoard {
         chessBoard = new ChessPiece[8][8];
     }
 
+    // New constructor to create a ChessBoard from an existing board
+    public ChessBoard(ChessBoard chessBoard) {
+        this.chessBoard = new ChessPiece[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                this.chessBoard[i][j] = chessBoard.chessBoard[i][j] != null ? new ChessPiece(chessBoard.chessBoard[i][j].getTeamColor(), chessBoard.chessBoard[i][j].getPieceType()) : null;
+            }
+        }
+    }
+
     /**
      * Adds a chess piece to the chessboard
      *
