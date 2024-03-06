@@ -1,0 +1,15 @@
+package dataAccess;
+
+import model.GameData;
+import model.UserData;
+
+import java.util.List;
+
+public interface GameDataAccess {
+    void createGame(GameData gameData);
+    void updateGame(GameData gameData);
+
+    List<GameData> getListGame();
+    GameData getGameByID(Integer gameID);
+    void clear() throws DataAccessException;
+}

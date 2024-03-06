@@ -9,11 +9,17 @@ public class LoginResult {
     private String username;
     private Boolean success;
     private String message;
+    private int errorCode;
 
-    public LoginResult() {}
+    public LoginResult(int errorCode, String userName, String authToken) {
+        this.errorCode = errorCode;
+        this.username = userName;
+        this.authToken = authToken;
+    }
 
-    public LoginResult(AuthData auth) {
-        this.authToken = auth.getAuthToken();
+    public LoginResult(int errorCode, String message) {
+        this.errorCode = errorCode;
+        this.message = message;
     }
 
     public String getAuthToken() {
@@ -46,6 +52,14 @@ public class LoginResult {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public int getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(int errorCode) {
+        this.errorCode = errorCode;
     }
 
     @Override

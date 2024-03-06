@@ -9,6 +9,7 @@ public class DatabaseManager {
     private static final String password;
     private static final String connectionUrl;
 
+    private static DatabaseManager instance;
     /*
      * Load the database information for the db.properties file.
      */
@@ -67,5 +68,16 @@ public class DatabaseManager {
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
+    }
+
+    public static DatabaseManager getInstance() {
+        if (instance == null) {
+            synchronized (DatabaseManager.class) {
+                if (instance == null) {
+                    instance = new DatabaseManager();
+                }
+            }
+        }
+        return instance;
     }
 }

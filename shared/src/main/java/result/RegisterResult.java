@@ -1,17 +1,22 @@
 package result;
 
-public class CreateResult {
+public class RegisterResult {
+
     private boolean success;
     private String message;
     private int errorCode;
-    private Integer gameID;
 
-    public CreateResult(int errorCode, Integer gameID) {
+    private String authToken;
+
+    private String username;
+
+    public RegisterResult(int errorCode, String userName, String authToken) {
         this.errorCode = errorCode;
-        this.gameID = gameID;
+        this.username = userName;
+        this.authToken = authToken;
     }
 
-    public CreateResult(int errorCode, String message) {
+    public RegisterResult(int errorCode, String message) {
         this.errorCode = errorCode;
         this.message = message;
     }
@@ -38,13 +43,5 @@ public class CreateResult {
 
     public void setErrorCode(int errorCode) {
         this.errorCode = errorCode;
-    }
-
-    public Integer getGameID() {
-        return gameID;
-    }
-
-    public void setGameID(Integer gameID) {
-        this.gameID = gameID;
     }
 }

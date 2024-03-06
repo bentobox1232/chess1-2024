@@ -12,6 +12,16 @@ public class AuthData {
         username = new String();
     }
 
+    public AuthData (String authToken, String username) {
+        this.authToken = authToken;
+        this.username = username;
+    }
+
+    public AuthData(String username) {
+        this.username = username;
+        authToken = UUID.randomUUID().toString();
+    }
+
     public String getAuthToken() {
         return authToken;
     }
