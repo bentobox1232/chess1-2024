@@ -28,6 +28,9 @@ public class GameDAO implements GameDataAccess {
 
     @Override
     public void updateGame(GameData gameData) throws DataAccessException {
+        if (getGameByID(gameData.getGameID()) == null) {
+            throw new DataAccessException("Game not found for update");
+        }
         String sql = "UPDATE games SET whiteUsername = ?, blackUsername = ?, gameName = ?, gameString = ? WHERE gameID = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, gameData.getWhiteUsername());
@@ -104,7 +107,7 @@ public class GameDAO implements GameDataAccess {
             `gameID` INT PRIMARY KEY,
             `whiteUsername` VARCHAR(256),
             `blackUsername` VARCHAR(256),
-            `gameName` VARCHAR(256) NOT NULL,
+            `gameName` VARCHAR(256) NOT NULL UNIQUE,
             `gameString` TEXT
         )
         """;
