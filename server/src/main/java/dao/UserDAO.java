@@ -18,7 +18,6 @@ public class UserDAO implements UserDataAccess {
         try {
             configureDatabase();
         } catch (DataAccessException e) {
-            // Handle the exception or print an error message
             e.printStackTrace();
         }
     }
@@ -85,7 +84,7 @@ public class UserDAO implements UserDataAccess {
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
-        return null; // No user found
+        return null;
     }
 
     @Override
