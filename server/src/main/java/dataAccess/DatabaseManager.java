@@ -69,17 +69,4 @@ public class DatabaseManager {
             throw new DataAccessException( e.getMessage());
         }
     }
-
-    public static DatabaseManager getInstance() {
-        if (instance == null) {
-            synchronized (DatabaseManager.class) {
-                if (instance == null) {
-                    instance = new DatabaseManager();
-                }
-            }
-        }
-        return instance;
-    }
-
-
 }

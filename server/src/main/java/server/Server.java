@@ -20,7 +20,7 @@ public class Server {
 
     public Server() {
         try {
-            DatabaseManager databaseManager = DatabaseManager.getInstance();
+            DatabaseManager databaseManager = new DatabaseManager();
             databaseConnection = databaseManager.getConnection();
 
             // Create the database if it doesn't exist
