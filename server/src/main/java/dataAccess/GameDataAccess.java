@@ -6,7 +6,7 @@ import model.UserData;
 import java.util.List;
 
 public interface GameDataAccess {
-    void createGame(GameData gameData);
+    void createGame(GameData gameData) throws DataAccessException;
     void updateGame(GameData gameData);
 
     List<GameData> getListGame();
