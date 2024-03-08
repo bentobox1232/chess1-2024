@@ -22,7 +22,6 @@ public class GameDAO implements GameDataAccess {
         try {
             configureDatabase();
         } catch (DataAccessException e) {
-            // Handle the exception or print an error message
             e.printStackTrace();
         }
     }
@@ -34,7 +33,7 @@ public class GameDAO implements GameDataAccess {
             statement.setString(1, gameData.getWhiteUsername());
             statement.setString(2, gameData.getBlackUsername());
             statement.setString(3, gameData.getGameName());
-            statement.setString(4, new Gson().toJson(gameData.getGame())); // Serialize ChessGame to JSON
+            statement.setString(4, new Gson().toJson(gameData.getGame()));
             statement.setInt(5, gameData.getGameID());
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -55,7 +54,7 @@ public class GameDAO implements GameDataAccess {
                 String gameName = resultSet.getString("gameName");
                 String gameString = resultSet.getString("gameString");
 
-                ChessGame chessGame = new Gson().fromJson(gameString, ChessGame.class); // Deserialize from JSON
+                ChessGame chessGame = new Gson().fromJson(gameString, ChessGame.class);
 
                 games.add(new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame));
             }
@@ -77,7 +76,7 @@ public class GameDAO implements GameDataAccess {
                     String gameName = resultSet.getString("gameName");
                     String gameString = resultSet.getString("gameString");
 
-                    ChessGame chessGame = new Gson().fromJson(gameString, ChessGame.class); // Deserialize from JSON
+                    ChessGame chessGame = new Gson().fromJson(gameString, ChessGame.class);
 
                     return new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
                 }
@@ -85,7 +84,7 @@ public class GameDAO implements GameDataAccess {
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
-        return null; // No game found
+        return null;
     }
 
     @Override
@@ -114,7 +113,6 @@ public class GameDAO implements GameDataAccess {
     public void createGame(GameData gameData) throws DataAccessException {
         String sql = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, gameString) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            // Use the provided gameID or generate a new one if it's null
             int gameID = (gameData.getGameID() != null) ? gameData.getGameID() : rand.nextInt(Integer.MAX_VALUE);
             statement.setInt(1, gameID);
 
@@ -122,13 +120,11 @@ public class GameDAO implements GameDataAccess {
             statement.setString(3, gameData.getBlackUsername());
             statement.setString(4, gameData.getGameName());
 
-            // Serialize the ChessGame object to a JSON string
             String serializedGame = new Gson().toJson(gameData.getGame());
             statement.setString(5, serializedGame);
 
             statement.executeUpdate();
 
-            // If gameID was generated, set it in the GameData object
             if (gameData.getGameID() == null) {
                 gameData.setGameID(gameID);
             }
@@ -143,7 +139,6 @@ public class GameDAO implements GameDataAccess {
     private void configureDatabase() throws DataAccessException {
         try (Statement statement = connection.createStatement()) {
 
-            // Create the games table if it doesn't exist
             statement.executeUpdate(createGamesTableStatement);
 
         } catch (SQLException e) {

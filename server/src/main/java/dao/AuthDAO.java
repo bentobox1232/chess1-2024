@@ -15,7 +15,6 @@ public class AuthDAO implements AuthDataAccess {
         try {
             configureDatabase();
         } catch (DataAccessException e) {
-            // Handle the exception or print an error message
             e.printStackTrace();
         }
     }
@@ -44,7 +43,7 @@ public class AuthDAO implements AuthDataAccess {
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
-        return null; // No authorization found
+        return null;
     }
 
     public void deleteAuth(String authToken) throws DataAccessException {
@@ -78,21 +77,10 @@ public class AuthDAO implements AuthDataAccess {
     private void configureDatabase() throws DataAccessException {
         try (Statement statement = connection.createStatement()) {
 
-            // Create the auth table if it doesn't exist
             statement.executeUpdate(createAuthTableStatement);
 
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
-        }
-    }
-
-    public void closeConnection() {
-        try {
-            if (connection != null && !connection.isClosed()) {
-                connection.close();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 }
