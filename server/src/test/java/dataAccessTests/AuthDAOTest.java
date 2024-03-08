@@ -4,7 +4,7 @@ import dao.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.DatabaseManager;
 import model.AuthData;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
 
@@ -15,22 +15,22 @@ public class AuthDAOTest {
     private static Connection connection;
     private AuthDAO authDAO;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         connection = DatabaseManager.getConnection();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         authDAO = new AuthDAO(connection);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         authDAO.clear();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownAfterClass() throws Exception {
         connection.close();
     }
@@ -40,7 +40,6 @@ public class AuthDAOTest {
         AuthData authData = new AuthData("testAuthToken", "testUserId");
 
         assertDoesNotThrow(() -> authDAO.createAuth(authData));
-
     }
 
     @Test
@@ -66,12 +65,13 @@ public class AuthDAOTest {
     }
 
     @Test
-    public void testGetAuth_Negative_NonExistentAuthToken() throws DataAccessException {
+    public void testGetAuth_Negative_NonExistentAuthToken() {
         String authToken = "nonExistentAuthToken";
 
-        AuthData retrievedAuth = authDAO.getAuth(authToken);
-
-        assertNull(retrievedAuth);
+        assertDoesNotThrow(() -> {
+            AuthData retrievedAuth = authDAO.getAuth(authToken);
+            assertNull(retrievedAuth);
+        });
     }
 
     @Test
@@ -83,9 +83,10 @@ public class AuthDAOTest {
 
         assertDoesNotThrow(() -> authDAO.deleteAuth(authToken));
 
-        AuthData retrievedAuth = authDAO.getAuth(authToken);
-
-        assertNull(retrievedAuth);
+        assertDoesNotThrow(() -> {
+            AuthData retrievedAuth = authDAO.getAuth(authToken);
+            assertNull(retrievedAuth);
+        });
     }
 
     @Test
@@ -95,4 +96,3 @@ public class AuthDAOTest {
         assertDoesNotThrow(() -> authDAO.deleteAuth(authToken));
     }
 }
-

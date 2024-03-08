@@ -5,37 +5,34 @@ import dao.GameDAO;
 import dataAccess.DataAccessException;
 import dataAccess.DatabaseManager;
 import model.GameData;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GameDAOTest {
 
     private static Connection connection;
     private GameDAO gameDAO;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         connection = DatabaseManager.getConnection();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         gameDAO = new GameDAO(connection);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         gameDAO.clear();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownAfterClass() throws Exception {
         connection.close();
     }
@@ -58,9 +55,7 @@ public class GameDAOTest {
 
         try {
             gameDAO.createGame(gameData1);
-            gameDAO.createGame(gameData2); // This should fail
-
-            fail("Expected DataAccessException, but no exception was thrown");
+            assertThrows(DataAccessException.class, () -> gameDAO.createGame(gameData2));
         } catch (DataAccessException e) {
             // Expected exception
         }
@@ -85,12 +80,10 @@ public class GameDAOTest {
 
     @Test
     public void testGetGameByID_Negative() {
-        try {
+        assertDoesNotThrow(() -> {
             GameData retrievedGame = gameDAO.getGameByID(9999); // Non-existent ID
             assertNull(retrievedGame);
-        } catch (DataAccessException e) {
-            fail("Unexpected exception: " + e.getMessage());
-        }
+        });
     }
 
     @Test
@@ -113,7 +106,7 @@ public class GameDAOTest {
         ChessMove chessMove = new ChessMove(startPosition, endPosition, null); // No promotion for this test
         gameData.getGame().makeMove(chessMove);
 
-        try {
+        assertDoesNotThrow(() -> {
             gameDAO.updateGame(gameData);
 
             GameData updatedGame = gameDAO.getGameByID(gameData.getGameID());
@@ -123,22 +116,14 @@ public class GameDAOTest {
             assertEquals(gameData.getBlackUsername(), updatedGame.getBlackUsername());
             assertEquals(gameData.getGameName(), updatedGame.getGameName());
             assertEquals(gameData.getGame().getBoard(), updatedGame.getGame().getBoard());
-        } catch (DataAccessException e) {
-            fail("Unexpected exception: " + e.getMessage());
-        }
+        });
     }
-
 
     @Test
     public void testUpdateGame_Negative() {
         GameData gameData = new GameData(1000,"Player1", "Player2", "ChessGame1", new ChessGame());
 
-        try {
-            gameDAO.updateGame(gameData);
-
-            fail("Expected DataAccessException, but no exception was thrown");
-        } catch (DataAccessException e) {
-        }
+        assertThrows(DataAccessException.class, () -> gameDAO.updateGame(gameData));
     }
 
     @Test
@@ -148,7 +133,7 @@ public class GameDAOTest {
         gameDAO.createGame(game1);
         gameDAO.createGame(game2);
 
-        try {
+        assertDoesNotThrow(() -> {
             List<GameData> gameList = gameDAO.getListGame();
 
             assertNotNull(gameList);
@@ -156,20 +141,15 @@ public class GameDAOTest {
 
             assertEquals(gameList.get(0).getGameID(), game1.getGameID());
             assertEquals(gameList.get(1).getGameID(), game2.getGameID());
-        } catch (DataAccessException e) {
-            fail("Unexpected exception: " + e.getMessage());
-        }
+        });
     }
 
     @Test
     public void testGetListGame_Negative() {
-        try {
+        assertDoesNotThrow(() -> {
             List<GameData> gameList = gameDAO.getListGame();
             assertNotNull(gameList);
             assertTrue(gameList.isEmpty());
-        } catch (DataAccessException e) {
-            fail("Unexpected exception: " + e.getMessage());
-        }
+        });
     }
 }
-
