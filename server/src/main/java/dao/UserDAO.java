@@ -1,7 +1,6 @@
-package dataAccess;
+package dao;
 
 import dataAccess.DataAccessException;
-import dataAccess.DatabaseManager;
 import dataAccess.UserDataAccess;
 import model.UserData;
 

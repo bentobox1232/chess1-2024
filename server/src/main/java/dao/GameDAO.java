@@ -1,10 +1,10 @@
-package dataAccess;
+package dao;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import dataAccess.GameDataAccess;
 import model.GameData;
-import chess.ChessGame;
 
 import java.sql.*;
 import java.util.ArrayList;

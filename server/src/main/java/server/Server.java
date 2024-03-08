@@ -1,6 +1,8 @@
 package server;
 
-import dataAccess.UserDAO;
+import dao.AuthDAO;
+import dao.GameDAO;
+import dao.UserDAO;
 import dataAccess.*;
 import handler.*;
 import spark.*;

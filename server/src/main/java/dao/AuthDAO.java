@@ -1,10 +1,8 @@
-package dataAccess;
+package dao;
 
 import dataAccess.AuthDataAccess;
 import dataAccess.DataAccessException;
-import dataAccess.UserDataAccess;
 import model.AuthData;
-import model.UserData;
 
 import java.sql.*;
 
