@@ -62,7 +62,12 @@ public class AuthDAO implements AuthDataAccess {
 
     @Override
     public void clear() throws DataAccessException {
-        // Implement the logic if needed
+        String sql = "DELETE FROM auth";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     private final String createAuthTableStatement = """
