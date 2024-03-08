@@ -25,8 +25,19 @@ public class UserDAO implements UserDataAccess {
     }
 
     @Override
-    public boolean isUsernameTaken(String username) {
-        // Implement the logic if needed
+    public boolean isUsernameTaken(String username) throws DataAccessException {
+        String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    int count = resultSet.getInt(1);
+                    return count > 0;
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
         return false;
     }
 
@@ -43,9 +54,17 @@ public class UserDAO implements UserDataAccess {
     }
 
     @Override
-    public boolean isCorrectLoginInfo(String username, String password) {
-        // Implement the logic if needed
-        return false;
+    public boolean isCorrectLoginInfo(String username, String password) throws DataAccessException {
+        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username);
+            statement.setString(2, password);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override
@@ -72,7 +91,12 @@ public class UserDAO implements UserDataAccess {
 
     @Override
     public void clear() throws DataAccessException {
-        // Implement the logic if needed
+        String sql = "DELETE FROM users";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     private final String createUserTableStatement = """
