@@ -66,7 +66,7 @@ public class JoinService {
         return joinRequest != null && joinRequest.getGameID() != null && joinRequest.getGameID() != 0;
     }
 
-    private boolean colorTaken(JoinRequest joinRequest) {
+    private boolean colorTaken(JoinRequest joinRequest) throws DataAccessException {
         GameData game = gameDataAccess.getGameByID(joinRequest.getGameID());
         String color = joinRequest.getPlayerColor();
         if (game != null) {
