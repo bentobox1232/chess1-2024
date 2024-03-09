@@ -18,10 +18,11 @@ public class Server {
     public int run(int desiredPort) {
         try {
             DatabaseManager databaseManager = DatabaseManager.getInstance();
+
+            databaseManager.createDatabase();
+
             Connection databaseConnection = databaseManager.getConnection();
 
-            // Create the database if it doesn't exist
-            databaseManager.createDatabase();
 
             UserDataAccess userDataAccess = new UserDAO(databaseConnection);
             AuthDataAccess authDataAccess = new AuthDAO(databaseConnection);
