@@ -82,8 +82,8 @@ public class UserDAOTest {
     @Test
     public void testIsCorrectLoginInfo_Positive() throws DataAccessException {
 
-        String username = "existingUser";
-        String password = "password123";
+        String username = "existingUserRandomm";
+        String password = "password123432";
         userDAO.createUser(new UserData(username, password, "user@example.com"));
 
 
