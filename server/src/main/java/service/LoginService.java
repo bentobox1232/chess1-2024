@@ -6,9 +6,7 @@ import dataAccess.UserDataAccess;
 import model.AuthData;
 import model.UserData;
 import request.LoginRequest;
-import request.RegisterRequest;
 import result.LoginResult;
-import result.RegisterResult;
 
 public class LoginService {
     private UserDataAccess userDataAccess;
@@ -29,14 +27,14 @@ public class LoginService {
                 // Generate an authToken for the registered user
                 String authToken = generateAuthToken(loginRequest.getUsername());
 
-                return new LoginResult(200, registedUser.getUsername(), authToken);
+                return new LoginResult(200, true, registedUser.getUsername(), authToken);
 
             } else {
-                return new LoginResult(401, "Error: unauthorized");
+                return new LoginResult(401, false, "Error: unauthorized");
             }
 
         } catch (DataAccessException e) {
-            return new LoginResult(500, "Error: description");
+            return new LoginResult(500, false, "Error: description");
         }
     }
 

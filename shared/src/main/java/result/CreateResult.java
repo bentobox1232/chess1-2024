@@ -6,13 +6,15 @@ public class CreateResult {
     private int errorCode;
     private Integer gameID;
 
-    public CreateResult(int errorCode, Integer gameID) {
+    public CreateResult(int errorCode, boolean success, Integer gameID) {
         this.errorCode = errorCode;
+        this.success = success;
         this.gameID = gameID;
     }
 
-    public CreateResult(int errorCode, String message) {
+    public CreateResult(int errorCode, boolean success, String message) {
         this.errorCode = errorCode;
+        this.success = success;
         this.message = message;
     }
 

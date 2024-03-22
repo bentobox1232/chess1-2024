@@ -6,17 +6,20 @@ import java.util.List;
 
 public class ListResult {
     int errorCode;
+    boolean success;
     String message;
     List<GameData> games;
 
-    public ListResult(int errorCode, List<GameData> games) {
+    public ListResult(int errorCode, boolean success, List<GameData> games) {
         this.errorCode = errorCode;
         this.games = games;
+        this.success = success;
     }
 
-    public ListResult(int errorCode, String message) {
+    public ListResult(int errorCode, boolean success, String message) {
         this.errorCode = errorCode;
         this.message = message;
+        this.success = success;
     }
 
     public int getErrorCode() {
@@ -41,5 +44,12 @@ public class ListResult {
 
     public void setGames(List<GameData> games) {
         this.games = games;
+    }
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 }

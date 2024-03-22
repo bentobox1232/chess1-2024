@@ -22,8 +22,8 @@ public class CreateService {
         try {
             if(isValidRequest(createRequest)) {
                 // Validate authtoken
-                if(!isAuthorized(authToken)) {
-                    return new CreateResult(401, "Error: unauthorized");
+                if(!isAuthorized(createRequest.getAuthToken())) {
+                    return new CreateResult(401, false, "Error: unauthorized");
                 }
 
                 Integer gameId = rand.nextInt(Integer.MAX_VALUE);
@@ -35,13 +35,13 @@ public class CreateService {
 
                 gameDataAccess.createGame(newGame);
 
-                return new CreateResult(200, newGame.getGameID());
+                return new CreateResult(200, true, newGame.getGameID());
 
             } else{
-                return new CreateResult(400, "Error: bad request");
+                return new CreateResult(400, false, "Error: bad request");
             }
         } catch (DataAccessException e) {
-            return new CreateResult(500, "Error: description");
+            return new CreateResult(500, false, "Error: description");
         }
     }
 

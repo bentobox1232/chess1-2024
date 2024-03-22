@@ -1,7 +1,5 @@
 package result;
 
-import model.AuthData;
-
 import java.util.Objects;
 
 public class LoginResult {
@@ -11,14 +9,16 @@ public class LoginResult {
     private String message;
     private int errorCode;
 
-    public LoginResult(int errorCode, String userName, String authToken) {
+    public LoginResult(int errorCode, boolean success, String userName, String authToken) {
         this.errorCode = errorCode;
+        this.success = success;
         this.username = userName;
         this.authToken = authToken;
     }
 
-    public LoginResult(int errorCode, String message) {
+    public LoginResult(int errorCode, boolean success, String message) {
         this.errorCode = errorCode;
+        this.success = success;
         this.message = message;
     }
 
@@ -38,7 +38,7 @@ public class LoginResult {
         this.username = username;
     }
 
-    public Boolean getSuccess() {
+    public Boolean isSuccess() {
         return success;
     }
 
@@ -61,6 +61,7 @@ public class LoginResult {
     public void setErrorCode(int errorCode) {
         this.errorCode = errorCode;
     }
+
 
     @Override
     public boolean equals(Object o) {

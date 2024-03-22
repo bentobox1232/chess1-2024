@@ -3,14 +3,17 @@ package result;
 public class JoinResult {
     int errorCode;
     String message;
+    boolean success;
 
-    public JoinResult(int errorCode) {
+    public JoinResult(int errorCode, boolean success) {
         this.errorCode = errorCode;
+        this.success = success;
     }
 
-    public JoinResult(int errorCode, String message) {
+    public JoinResult(int errorCode, boolean success, String message) {
         this.errorCode = errorCode;
         this.message = message;
+        this.success = success;
     }
     public int getErrorCode() {
         return errorCode;
@@ -26,5 +29,13 @@ public class JoinResult {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 }

@@ -28,7 +28,7 @@ public class JoinHandler implements Route {
         JoinRequest joinRequest = gson.fromJson(request.body(), JoinRequest.class);
 
         JoinService joinService = new JoinService(gameDataAccess, authDataAccess);
-        JoinResult joinResult = joinService.handleJoinRequest(joinRequest, authToken);
+        JoinResult joinResult = joinService.handleJoinRequest(joinRequest);
 
         response.type("application/json");
         response.status(joinResult.getErrorCode());

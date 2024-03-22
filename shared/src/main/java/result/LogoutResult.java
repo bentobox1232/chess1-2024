@@ -5,11 +5,13 @@ public class LogoutResult {
     private int errorCode;
     private Boolean success;
 
-    public LogoutResult(int errorCode) {
+    public LogoutResult(int errorCode, boolean success) {
         this.errorCode = errorCode;
+        this.success = success;
     }
-    public LogoutResult(int errorCode, String message){
+    public LogoutResult(int errorCode, boolean success, String message){
         this.errorCode = errorCode;
+        this.success = success;
         this.message = message;
     }
 

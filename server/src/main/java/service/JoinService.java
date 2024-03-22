@@ -5,8 +5,6 @@ import dataAccess.DataAccessException;
 import dataAccess.GameDataAccess;
 import model.GameData;
 import request.JoinRequest;
-import request.JoinRequest;
-import result.CreateResult;
 import result.JoinResult;
 
 public class JoinService {
@@ -16,32 +14,32 @@ public class JoinService {
         this.gameDataAccess = gameDataAccess;
         this.authDataAccess = authDataAccess;
     }
-    public JoinResult handleJoinRequest(JoinRequest joinRequest, String authToken) {
+    public JoinResult handleJoinRequest(JoinRequest joinRequest) {
         try {
             if(isValidRequest(joinRequest)) {
-                if(!isAuthorized(authToken)) {
-                    return new JoinResult(401, "Error: unauthorized");
+                if(!isAuthorized(joinRequest.getAuthToken())) {
+                    return new JoinResult(401, false, "Error: unauthorized");
                 }
 
                 if(joinRequest.getPlayerColor() != null) {
                     if(colorTaken(joinRequest)) {
-                        return new JoinResult(403,  "Error: already taken");
+                        return new JoinResult(403, false, "Error: already taken");
                     }
                 }
 
 
                 GameData game = gameDataAccess.getGameByID(joinRequest.getGameID());
-                setPlayerColor(game, joinRequest, authToken);
+                setPlayerColor(game, joinRequest);
                 gameDataAccess.updateGame(game);
 
-                return new JoinResult(200);
+                return new JoinResult(200, true);
 
             } else {
-                return new JoinResult(400, "Error: bad request");
+                return new JoinResult(400, false, "Error: bad request");
             }
 
         } catch (DataAccessException e) {
-            return new JoinResult(500, "Error: description");
+            return new JoinResult(500, false,"Error: description");
         }
     }
 
@@ -52,9 +50,9 @@ public class JoinService {
         return false;
     }
 
-    private void setPlayerColor(GameData game, JoinRequest joinRequest, String authToken) throws DataAccessException {
+    private void setPlayerColor(GameData game, JoinRequest joinRequest) throws DataAccessException {
         String color = joinRequest.getPlayerColor();
-        String username = authDataAccess.getAuth(authToken).getUsername();
+        String username = authDataAccess.getAuth(joinRequest.getAuthToken()).getUsername();
         if ("BLACK".equals(color)) {
             game.setBlackUsername(username);
         } else if ("WHITE".equals(color)) {

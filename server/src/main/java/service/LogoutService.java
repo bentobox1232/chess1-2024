@@ -2,8 +2,6 @@ package service;
 
 import dataAccess.AuthDataAccess;
 import dataAccess.DataAccessException;
-import request.LogoutRequest;
-import result.LoginResult;
 import result.LogoutResult;
 
 public class LogoutService {
@@ -18,12 +16,12 @@ public class LogoutService {
             if(authDataAccess.getAuth(authToken) != null) {
                 authDataAccess.deleteAuth(authToken);
                 if(authDataAccess.getAuth(authToken) == null) {
-                    return new LogoutResult(200);
+                    return new LogoutResult(200, true);
                 }
             }
-            return new LogoutResult(401, "Error: unauthorized");
+            return new LogoutResult(401, false, "Error: unauthorized");
         } catch (DataAccessException e) {
-            return new LogoutResult(500, "Error: description");
+            return new LogoutResult(500, false, "Error: description");
         }
     }
 }

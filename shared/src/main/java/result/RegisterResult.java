@@ -6,18 +6,28 @@ public class RegisterResult {
     private String message;
     private int errorCode;
 
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
+    }
+
     private String authToken;
 
     private String username;
 
-    public RegisterResult(int errorCode, String userName, String authToken) {
+    public RegisterResult(int errorCode, boolean success, String userName, String authToken) {
         this.errorCode = errorCode;
+        this.success = success;
         this.username = userName;
         this.authToken = authToken;
     }
 
-    public RegisterResult(int errorCode, String message) {
+    public RegisterResult(int errorCode, boolean success, String message) {
         this.errorCode = errorCode;
+        this.success = success;
         this.message = message;
     }
 

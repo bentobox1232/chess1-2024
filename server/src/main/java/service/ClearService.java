@@ -30,9 +30,9 @@ public class ClearService {
             gameDataAccess.clear();
             userDataAccess.clear();
 
-            return new ClearResult(200);
+            return new ClearResult(200, true);
         } catch (DataAccessException e) {
-            return new ClearResult(500, "Error: description");
+            return new ClearResult(500, false, "Error: description");
         }
 
     }

@@ -26,7 +26,7 @@ public class RegisterService {
             if (isValidInput(registerRequest)) {
                 // Check if the username is already taken
                 if (userDataAccess.isUsernameTaken(registerRequest.getUsername())) {
-                    return new RegisterResult(403, "Error: already taken");
+                    return new RegisterResult(403, false, "Error: already taken");
                 }
 
                 // Create a new user in the database
@@ -43,12 +43,12 @@ public class RegisterService {
                 // Generate an authToken for the registered user
                 String authToken = generateAuthToken(newUser.getUsername());
 
-                return new RegisterResult(200, registedUser.getUsername(), authToken);
+                return new RegisterResult(200, true, registedUser.getUsername(), authToken);
             } else {
-                return new RegisterResult(400, "Error: bad request");
+                return new RegisterResult(400, false, "Error: bad request");
             }
         } catch (DataAccessException e) {
-            return new RegisterResult(500, "Error: description");
+            return new RegisterResult(500, false, "Error: description");
         }
     }
 

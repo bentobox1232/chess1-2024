@@ -8,12 +8,14 @@ public class ClearResult {
 
     public ClearResult(){}
 
-    public ClearResult(int errorCode) {
+    public ClearResult(int errorCode, boolean success) {
         this.errorCode = errorCode;
+        this.success = success;
     }
 
-    public ClearResult(int errorCode, String message) {
+    public ClearResult(int errorCode, boolean success, String message) {
         this.message = message;
+        this.success = success;
         this.errorCode = errorCode;
     }
 
