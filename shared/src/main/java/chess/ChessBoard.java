@@ -132,4 +132,8 @@ public class ChessBoard {
             throw new InvalidMoveException("No piece at the starting position");
         }
     }
+
+    public ChessPiece[][] getBoard(){
+        return chessBoard;
+    }
 }
