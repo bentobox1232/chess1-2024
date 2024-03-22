@@ -1,12 +1,14 @@
 package service;
 
+import chess.ChessGame;
 import dataAccess.AuthDataAccess;
 import dataAccess.DataAccessException;
 import dataAccess.GameDataAccess;
-import java.util.Random;
 import model.GameData;
 import request.CreateRequest;
 import result.CreateResult;
+
+import java.util.Random;
 
 public class CreateService {
     private Random rand = new Random();
@@ -30,7 +32,8 @@ public class CreateService {
 
                 GameData newGame = new GameData(
                         createRequest.getGameName(),
-                        gameId
+                        gameId,
+                        new ChessGame()
                 );
 
                 gameDataAccess.createGame(newGame);
