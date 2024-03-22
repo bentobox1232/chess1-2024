@@ -19,9 +19,10 @@ public class GameData {
         this.game = game;
     }
 
-    public GameData (String gameName, Integer gameID) {
+    public GameData (String gameName, Integer gameID, ChessGame game) {
         this.gameName = gameName;
         this.gameID = gameID;
+        this.game = game;
     }
 
     public Integer getGameID() {
