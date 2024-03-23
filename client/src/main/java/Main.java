@@ -97,6 +97,10 @@ public class Main {
                     facade.logout(authToken);
                     loggedIn = false;
                     break;
+                case "quit":
+                    System.out.println("Thank you for playing! See you next time!");
+                    quit = true;
+                    return;
                 default:
                     System.out.println("Please tye help to get help, or enter a valid command.");
             }
@@ -142,7 +146,6 @@ public class Main {
             if (joinResult.isSuccess()) {
                 System.out.println("Successfully joined the game as an observer!");
                 drawChessboard(selectedGame.getGame().getBoard().getBoard(), true);
-
 
                 drawChessboard(selectedGame.getGame().getBoard().getBoard(), false);
 
@@ -195,8 +198,8 @@ public class Main {
         if(b) {
             System.out.println("create <NAME> - a game");
             System.out.println("list - games");
-            System.out.println("join <ID> [WHITE|BLACK|<empty>] - a game");
-            System.out.println("observe <ID> - game");
+            System.out.println("join - game ");
+            System.out.println("observe - game");
             System.out.println("logout - when you are done");
             System.out.println("quit - playing chess");
         } else {

@@ -38,6 +38,11 @@ public class ServerFacadeTests {
        facade.registerUser("player1", "password", "p1@email.com");
     }
 
+    @AfterAll
+    public static void tearDown() throws IOException {
+        facade.clearDatabase();
+    }
+
 
     @Test
     public void testRegisterUser_Success() throws IOException {
@@ -104,56 +109,54 @@ public class ServerFacadeTests {
         assertTrue(result.isSuccess());
     }
 
-//    @Test
-//    public void testRegisterUser_Failure() throws IOException {
-//        // Attempt to register with existing username
-//        RegisterResult result = facade.registerUser("player1", "testPassword", "p1@email.com");
-//        assertFalse(result.isSuccess());
-//        assertNull(result.getAuthToken());
-//    }
-//
-//    @Test
-//    public void testLogin_Failure() throws IOException {
-//        // Attempt to login with incorrect password
-//        LoginResult result = facade.login("player1", "wrongPassword");
-//        assertFalse(result.isSuccess());
-//        assertNull(result.getAuthToken());
-//    }
-//
-//    @Test
-//    public void logoutTest_Failure() throws IOException {
-//        // Attempt to logout with invalid or expired authentication token
-//        LogoutResult result = facade.logout("invalidAuthToken");
-//        assertFalse(result.getSuccess());
-//    }
-//
-//    @Test
-//    void createGame_Failure() throws IOException {
-//        // Attempt to create a game with invalid authentication token
-//        CreateResult createResult = facade.createGame("Test Game", "invalidAuthToken");
-//        assertFalse(createResult.isSuccess());
-//        assertNull(createResult.getGameID());
-//    }
-//
-//    @Test
-//    void listGames_Failure() throws IOException {
-//        // Attempt to list games with invalid authentication token
-//        ListResult result = facade.listGames("invalidAuthToken");
-//        assertFalse(result.isSuccess());
-//    }
-//
-//    @Test
-//    void joinGameAsPlayer_Failure() throws IOException {
-//        // Attempt to join a game with invalid authentication token
-//        JoinResult result = facade.joinGame("invalidAuthToken", 123456, "BLACK");
-//        assertFalse(result.isSuccess());
-//    }
-//
-//    @Test
-//    void joinGameAsObserver_Failure() throws IOException {
-//        // Attempt to join a game as an observer with invalid authentication token
-//        JoinResult result = facade.joinGame("invalidAuthToken", 123456, null);
-//        assertFalse(result.isSuccess());
-//    }
+    @Test
+    public void testRegisterUser_Failure() throws IOException {
+        // Attempt to register with existing username
+        RegisterResult result = facade.registerUser("player1", "testPassword", "p1@email.com");
+        assertNull(result);
+    }
+
+    @Test
+    public void testLogin_Failure() throws IOException {
+        // Attempt to login with incorrect password
+        LoginResult result = facade.login("player1", "wrongPassword");
+        assertNull(result);
+    }
+
+    @Test
+    public void logoutTest_Failure() throws IOException {
+        IOException exception = assertThrows(IOException.class, () -> {
+            facade.logout("invalidAuthToken");
+        });
+        assertNotNull(exception);
+    }
+
+    @Test
+    void createGame_Failure() throws IOException {
+        // Attempt to create a game with invalid authentication token
+        CreateResult createResult = facade.createGame("Test Game", "invalidAuthToken");
+        assertNull(createResult);
+    }
+
+    @Test
+    void listGames_Failure() throws IOException {
+        // Attempt to list games with invalid authentication token
+        ListResult result = facade.listGames("invalidAuthToken");
+        assertNull(result);
+    }
+
+    @Test
+    void joinGameAsPlayer_Failure() throws IOException {
+        // Attempt to join a game with invalid authentication token
+        JoinResult result = facade.joinGame("invalidAuthToken", 123456, "BLACK");
+        assertNull(result);
+    }
+
+    @Test
+    void joinGameAsObserver_Failure() throws IOException {
+        // Attempt to join a game as an observer with invalid authentication token
+        JoinResult result = facade.joinGame("invalidAuthToken", 123456, null);
+        assertNull(result);;
+    }
 
 }
