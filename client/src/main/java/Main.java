@@ -3,7 +3,7 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import model.GameData;
 import result.*;
-import server.Server;
+//import server.Server;
 import ui.EscapeSequences;
 
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    private static Server server;
+    //private static Server server;
     private static boolean loggedIn = false;
     private static boolean quit = false;
     private static String authToken =  null;
@@ -20,9 +20,9 @@ public class Main {
 
     private static List<GameData> games;
     public static void main(String[] args) throws IOException {
-        server = new Server();
-        var port = server.run(0);
-        facade = new ServerFacade(port);
+        //server = new Server();
+        //var port = server.run(0);
+        facade = new ServerFacade(8080);
 
         Scanner scanner = new Scanner(System.in);
 
@@ -38,7 +38,7 @@ public class Main {
             }
         }
         scanner.close();
-        server.stop();
+        //server.stop();
     }
 
     private static void preLogin(Scanner scanner, ServerFacade facade) throws IOException {
@@ -50,14 +50,22 @@ public class Main {
                 break;
             case "register":
                 RegisterResult resultR = facade.registerUser(arr[1], arr[2], arr[3]);
-                authToken = resultR.getAuthToken();
-                loggedIn = true;
+                if (resultR == null) {
+                    System.out.println("User Already Exist " + arr[1]);
+                } else {
+                    authToken = resultR.getAuthToken();
+                    loggedIn = true;
+                }
                 break;
             case "login":
                 LoginResult resultL = facade.login(arr[1], arr[2]);
-                authToken = resultL.getAuthToken();
-                loggedIn = true;
-                System.out.println("Welcome "+ resultL.getUsername());
+                if (resultL == null) {
+                    System.out.println("Username or Password is incorrect ");
+                } else {
+                    authToken = resultL.getAuthToken();
+                    loggedIn = true;
+                    System.out.println("Welcome "+ resultL.getUsername());
+                }
                 break;
 
             case "quit":
@@ -82,7 +90,11 @@ public class Main {
                     break;
                 case "create":
                     CreateResult resultC = facade.createGame(arr[1], authToken);
-                    System.out.println("Game Created ID: "+ resultC.getGameID());
+                    if (resultC == null){
+                        System.out.println("GameID already exists: "+ resultC.getGameID());
+                    } else {
+                        System.out.println("Game Created ID: "+ resultC.getGameID());
+                    }
                     break;
                 case "list":
                     listGames(authToken);
@@ -143,6 +155,10 @@ public class Main {
 
             // Call the joinObserver method of ServerFacade
             JoinResult joinResult = facade.joinGame(authToken, gameID, null);
+            if (joinResult == null) {
+                System.out.println("Failed to join the game: " );
+                return;
+            }
             if (joinResult.isSuccess()) {
                 System.out.println("Successfully joined the game as an observer!");
                 drawChessboard(selectedGame.getGame().getBoard().getBoard(), true);
@@ -182,6 +198,10 @@ public class Main {
 
             // Call the joinGame method of ServerFacade
             JoinResult joinResult = facade.joinGame(authToken, gameID, color);
+            if (joinResult == null) {
+                System.out.println("Failed to join the game ");
+                return;
+            }
             if (joinResult.isSuccess()) {
                 System.out.println("Successfully joined the game!");
                 drawChessboard(selectedGame.getGame().getBoard().getBoard(), true);
