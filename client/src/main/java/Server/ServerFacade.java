@@ -9,16 +9,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class ServerFacade {
-    private final String baseUrl;
-    private final NotificationHandler notificationHandler;
-    private WSClient wsClient;
+    public static String baseUrl;
 
-    public ServerFacade(int port, NotificationHandler notificationHandler ) {
+    public ServerFacade(int port) {
         this.baseUrl = "http://localhost:" + port;
-        this.notificationHandler = notificationHandler;
     }
 
-    public RegisterResult registerUser(String userName, String password, String email) throws IOException {
+    public static RegisterResult registerUser(String userName, String password, String email) throws IOException {
         String endpoint = baseUrl + "/user";
 
         RegisterRequest request = new RegisterRequest();
@@ -29,7 +26,7 @@ public class ServerFacade {
         return doPost(endpoint, request, RegisterResult.class);
     }
 
-    public LoginResult login(String username, String password) throws IOException {
+    public static LoginResult login(String username, String password) throws IOException {
         String endpoint = baseUrl + "/session";
 
         LoginRequest request = new LoginRequest();
@@ -38,7 +35,7 @@ public class ServerFacade {
         return doPost(endpoint, request, LoginResult.class);
     }
 
-    public LogoutResult logout(String authToken) throws IOException {
+    public static LogoutResult logout(String authToken) throws IOException {
         String endpoint = baseUrl + "/session";
 
         LogoutRequest request = new LogoutRequest();
@@ -51,7 +48,7 @@ public class ServerFacade {
         return doDelete(endpoint, null, ClearResult.class);
     }
 
-    public CreateResult createGame(String gameName,String authToken) throws Exception {
+    public static CreateResult createGame(String gameName, String authToken) throws Exception {
         String endpoint = baseUrl + "/game";
 
         CreateRequest request = new CreateRequest();
@@ -60,25 +57,20 @@ public class ServerFacade {
 
         CreateResult result = doPost(endpoint, request, CreateResult.class);
 
-
-        if(result != null && result.isSuccess()) {
-            wsClient = new WSClient(baseUrl, notificationHandler);
-            wsClient.joinPlayer(authToken);
-        }
         return result;
     }
 
-    public ListResult listGames(String authToken) throws IOException {
+    public static ListResult listGames(String authToken) throws IOException {
         String endpoint = baseUrl + "/game";
 
         ListRequest request = new ListRequest(authToken);
         return doGet(endpoint, request, ListResult.class);
     }
 
-    public JoinResult joinGame(String authToken, Integer gameID, String color) throws IOException {
+    public static JoinResult joinGame(String authToken, String gameID, String color) throws IOException {
         String endpoint = baseUrl + "/game";
         JoinRequest request = new JoinRequest();
-        request.setGameID(gameID);
+        request.setGameID(Integer.valueOf(gameID));
         request.setPlayerColor(color);
         request.setAuthToken(authToken);
 
@@ -86,7 +78,7 @@ public class ServerFacade {
     }
 
     // Implement other methods to interact with different endpoints
-    public <TRequest, TResult> TResult doPost(String endpoint, TRequest request, Class<TResult> resultClass) throws IOException {
+    public static <TRequest, TResult> TResult doPost(String endpoint, TRequest request, Class<TResult> resultClass) throws IOException {
         Gson gson = new Gson();
         String requestBody = gson.toJson(request);
 
@@ -119,7 +111,7 @@ public class ServerFacade {
         return result;
     }
 
-    public <TRequest extends ListRequest, TResult> TResult doGet(String endpoint, TRequest request, Class<TResult> resultClass) throws IOException {
+    public static <TRequest extends ListRequest, TResult> TResult doGet(String endpoint, TRequest request, Class<TResult> resultClass) throws IOException {
         // Create the URL object
         URL url = new URL(endpoint);
 
@@ -152,7 +144,7 @@ public class ServerFacade {
         return result;
     }
 
-    public <TResult> TResult doDelete(String endpoint, String authToken, Class<TResult> resultClass) throws IOException {
+    public static <TResult> TResult doDelete(String endpoint, String authToken, Class<TResult> resultClass) throws IOException {
         URL url = new URL(endpoint);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("DELETE");
@@ -180,7 +172,7 @@ public class ServerFacade {
 
         return result;
     }
-    public <TRequest, TResult> TResult doPut(String endpoint, TRequest request, Class<TResult> resultClass) throws IOException {
+    public static <TRequest, TResult> TResult doPut(String endpoint, TRequest request, Class<TResult> resultClass) throws IOException {
         Gson gson = new Gson();
         String requestBody = gson.toJson(request);
 
