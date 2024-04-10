@@ -12,6 +12,8 @@ public class WebSocketHandler {
 
     private final WebSocketSessions webSocketSessions = new WebSocketSessions();
 
+    private GameService gameService = new GameService();
+
     public WebSocketHandler() {}
 
 
@@ -31,9 +33,11 @@ public class WebSocketHandler {
 
         } else if (msg.getCommandType() == UserGameCommand.CommandType.JOIN_PLAYER) {
             JoinPlayer command = new Gson().fromJson(message, JoinPlayer.class);
-            GameService.joinPlayer(command.getAuthString(), command.getGameID(), command.getPlayerColor(), webSocketSessions);
+            gameService.joinPlayer(command.getAuthString(), command.getGameID(), command.getPlayerColor(), webSocketSessions);
 
         } else if (msg.getCommandType() == UserGameCommand.CommandType.LEAVE) {
+            Leave commandObj = new Gson().fromJson(message, Leave.class);
+            gameService.leaveGame(commandObj.getAuthString(), commandObj.getGameID(), webSocketSessions);
 
         } else if (msg.getCommandType() == UserGameCommand.CommandType.RESIGN) {
 
