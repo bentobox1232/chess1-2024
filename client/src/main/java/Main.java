@@ -1,10 +1,8 @@
 import REPLS.PreloginUI;
 import Server.ServerFacade;
 
-import java.io.IOException;
-
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
 /*        Server server = new Server();
           var port = server.run(0);
           ServerFacade.SERVER_URL = ServerFacade.SERVER_URL + port; */

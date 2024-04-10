@@ -1,6 +1,5 @@
 package REPLS;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.ERASE_SCREEN;
@@ -8,7 +7,7 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY;
 
 public abstract class REPL {
 
-    public void start() throws IOException {
+    public void start() throws Exception {
         Scanner scanner = new Scanner(System.in);
         while (true) {
 

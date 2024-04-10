@@ -4,15 +4,13 @@ import Server.ServerFacade;
 import result.LoginResult;
 import result.RegisterResult;
 
-import java.io.IOException;
-
 import static ui.EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY;
 import static ui.EscapeSequences.SET_TEXT_COLOR_RED;
 
 public class PreloginUI extends REPL {
 
     @Override
-    protected Boolean evaluate(String[] arr) throws IOException {
+    protected Boolean evaluate(String[] arr) throws Exception {
 
         switch (arr[0]) {
             case "help":
