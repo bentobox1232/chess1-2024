@@ -10,9 +10,12 @@ import java.net.URL;
 
 public class ServerFacade {
     private final String baseUrl;
+    private final NotificationHandler notificationHandler;
+    private WSClient wsClient;
 
-    public ServerFacade(int port) {
+    public ServerFacade(int port, NotificationHandler notificationHandler ) {
         this.baseUrl = "http://localhost:" + port;
+        this.notificationHandler = notificationHandler;
     }
 
     public RegisterResult registerUser(String userName, String password, String email) throws IOException {
@@ -48,14 +51,21 @@ public class ServerFacade {
         return doDelete(endpoint, null, ClearResult.class);
     }
 
-    public CreateResult createGame(String gameName,String authToken) throws IOException {
+    public CreateResult createGame(String gameName,String authToken) throws Exception {
         String endpoint = baseUrl + "/game";
 
         CreateRequest request = new CreateRequest();
         request.setGameName(gameName);
         request.setAuthToken(authToken);
 
-        return doPost(endpoint, request, CreateResult.class);
+        CreateResult result = doPost(endpoint, request, CreateResult.class);
+
+
+        if(result != null && result.isSuccess()) {
+            wsClient = new WSClient(baseUrl, notificationHandler);
+            wsClient.joinPlayer(authToken);
+        }
+        return result;
     }
 
     public ListResult listGames(String authToken) throws IOException {
@@ -141,7 +151,6 @@ public class ServerFacade {
         connection.disconnect();
         return result;
     }
-
 
     public <TResult> TResult doDelete(String endpoint, String authToken, Class<TResult> resultClass) throws IOException {
         URL url = new URL(endpoint);

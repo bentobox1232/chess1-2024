@@ -5,18 +5,15 @@ import dao.GameDAO;
 import dao.UserDAO;
 import dataAccess.*;
 import handler.*;
-import spark.*;
+import spark.Spark;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 public class Server {
-
-
-
-
+//    private final WSServer wsServer;
     public int run(int desiredPort) {
         try {
+//            wsServer = new WSServer();
             DatabaseManager databaseManager = DatabaseManager.getInstance();
 
             databaseManager.createDatabase();
@@ -29,6 +26,10 @@ public class Server {
             GameDataAccess gameDataAccess = new GameDAO(databaseConnection);
 
             Spark.port(desiredPort);
+
+            Spark.webSocket("/connect", WSServer.class);
+//            Spark.get("/echo/:msg", (req, res) -> "HTTP response: " + req.params(":msg"));
+
             Spark.staticFiles.location("web");
 
             // Register your endpoints and handle exceptions here.
@@ -39,6 +40,8 @@ public class Server {
             Spark.get("/game", new ListHandler(gameDataAccess, authDataAccess));
             Spark.post("/game", new CreateHandler(gameDataAccess, authDataAccess));
             Spark.put("/game", new JoinHandler(gameDataAccess, authDataAccess));
+
+            // WebSocket endpoint
 
             Spark.awaitInitialization();
 

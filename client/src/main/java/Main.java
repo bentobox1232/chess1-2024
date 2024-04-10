@@ -1,9 +1,9 @@
+import Server.NotificationHandler;
 import Server.ServerFacade;
 import chess.ChessGame;
 import chess.ChessPiece;
 import model.GameData;
 import result.*;
-//import server.Server;
 import ui.EscapeSequences;
 
 import java.io.IOException;
@@ -19,10 +19,11 @@ public class Main {
     private static ServerFacade facade;
 
     private static List<GameData> games;
-    public static void main(String[] args) throws IOException {
+    private static NotificationHandler notificationHandler;
+    public static void main(String[] args) throws Exception {
         //server = new Server();
         //var port = server.run(0);
-        facade = new ServerFacade(8080);
+        facade = new ServerFacade(8080, notificationHandler);
 
         Scanner scanner = new Scanner(System.in);
 
@@ -77,7 +78,7 @@ public class Main {
         }
     }
 
-    private static void postLogin(Scanner scanner, ServerFacade facade) throws IOException {
+    private static void postLogin(Scanner scanner, ServerFacade facade) throws Exception {
         String line = scanner.nextLine().toLowerCase();
         String[] arr = line.split(" ");
 
@@ -117,8 +118,6 @@ public class Main {
                     System.out.println("Please tye help to get help, or enter a valid command.");
             }
     }
-
-
     public static void listGames(String authToken) {
         //            ListResult listResult = facade.listGames(authToken);
 //            games = listResult.getGames();
@@ -279,14 +278,6 @@ public class Main {
         }
         System.out.println("    " + (whiteAtBottom ? "h     g     f     e     d     c     b     a" : "a     b     c     d     e     f     g     h"));
     }
-
-
-
-
-
-
-
-
 
 }
 
