@@ -6,14 +6,14 @@ import dao.UserDAO;
 import dataAccess.*;
 import handler.*;
 import spark.Spark;
+import webSocket.WebSocketHandler;
 
 import java.sql.Connection;
 
 public class Server {
-//    private final WSServer wsServer;
+
     public int run(int desiredPort) {
         try {
-//            wsServer = new WSServer();
             DatabaseManager databaseManager = DatabaseManager.getInstance();
 
             databaseManager.createDatabase();
@@ -27,10 +27,9 @@ public class Server {
 
             Spark.port(desiredPort);
 
-            Spark.webSocket("/connect", WSServer.class);
-//            Spark.get("/echo/:msg", (req, res) -> "HTTP response: " + req.params(":msg"));
-
             Spark.staticFiles.location("web");
+
+            Spark.webSocket("/connect", WebSocketHandler.class);
 
             // Register your endpoints and handle exceptions here.
             Spark.delete("/db", new ClearHandler(authDataAccess, gameDataAccess, userDataAccess));

@@ -9,11 +9,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class ServerFacade {
-    public static String baseUrl;
+    public static String baseUrl = "http://localhost:";
 
-    public ServerFacade(int port) {
-        this.baseUrl = "http://localhost:" + port;
-    }
 
     public static RegisterResult registerUser(String userName, String password, String email) throws IOException {
         String endpoint = baseUrl + "/user";
@@ -64,14 +61,15 @@ public class ServerFacade {
         String endpoint = baseUrl + "/game";
 
         ListRequest request = new ListRequest(authToken);
+
         return doGet(endpoint, request, ListResult.class);
     }
 
-    public static JoinResult joinGame(String authToken, String gameID, String color) throws IOException {
+    public static JoinResult joinGame(String authToken, Integer gameID, String color) throws IOException {
         String endpoint = baseUrl + "/game";
         JoinRequest request = new JoinRequest();
-        request.setGameID(Integer.valueOf(gameID));
-        request.setPlayerColor(color);
+        request.setGameID(gameID);
+        request.setPlayerColor(color.toUpperCase());
         request.setAuthToken(authToken);
 
         return doPut(endpoint, request, JoinResult.class);

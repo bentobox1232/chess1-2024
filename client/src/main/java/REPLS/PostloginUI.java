@@ -1,14 +1,20 @@
 package REPLS;
 
 import Server.ServerFacade;
+import model.GameData;
 import result.CreateResult;
 import result.JoinResult;
+import result.ListResult;
+
+import java.util.List;
 
 import static ui.EscapeSequences.*;
 
 public class PostloginUI extends REPL {
 
     public static String authToken = null;
+
+    private static List<GameData> games;
 
     @Override
     protected Boolean evaluate(String[] arr) throws Exception {
@@ -33,23 +39,37 @@ public class PostloginUI extends REPL {
                 }
                 break;
             case "list":
-                ServerFacade.listGames(authToken);
+                ListResult result =  ServerFacade.listGames(authToken);
+                games = result.getGames();
+                if (games != null && !games.isEmpty()) {
+                    System.out.println("Available games:");
+                    for (int i = 0; i < games.size(); i++) {
+                        GameData game = games.get(i);
+                        System.out.println((i + 1) + ". " + game.getGameName() + " - White: " + game.getWhiteUsername() + ", Black: " + game.getBlackUsername());
+                    }
+                } else {
+                    System.out.println("No games available.");
+                }
                 break;
             case "join":
                 if (arr.length < 2 || arr.length > 3){
                     System.out.println("Invalid Format\n Type 'join' followed by which game you want to join, and the color you want to join as. If you just want to observe, omit the color.");
                     break;
                 }
-                JoinResult message = ServerFacade.joinGame(authToken, arr[1], arr[2]);
+
+                GameData selectedGame = games.get(Integer.valueOf(arr[1]) - 1);
+                int gameID = selectedGame.getGameID(); // Retrieve the actual game ID
+
+                JoinResult message = ServerFacade.joinGame(authToken, gameID, arr[2]);
                 if (message == null){
                     System.out.println("Unable to join game\n Make sure the player color is available by typing 'list'");
                     break;
                 }
                 GameplayUI repl;
                 if (arr.length == 3){
-                    repl = new GameplayUI(authToken, arr[1], arr[2]);
+                    repl = new GameplayUI(authToken, gameID, arr[2]);
                 } else {
-                    repl = new GameplayUI(authToken, arr[1], null);
+                    repl = new GameplayUI(authToken, gameID, null);
                 }
                 repl.start();
                 System.out.println(SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_LIGHT_GREY + "Quit Game Successfully!");

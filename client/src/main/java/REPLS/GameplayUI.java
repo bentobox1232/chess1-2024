@@ -8,6 +8,7 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
 import webSocketMessages.userCommands.JoinPlayer;
+import webSocketMessages.userCommands.Leave;
 
 import java.util.Collection;
 
@@ -47,10 +48,10 @@ public class GameplayUI extends REPL implements GameHandler {
     };
 
 
-    public GameplayUI(String authToken, String gameID, String color) {
+    public GameplayUI(String authToken, Integer gameID, String color) {
 
         this.authToken = authToken;
-        this.gameID = Integer.valueOf(gameID);
+        this.gameID = gameID;
 
         if (color != null) {
 
@@ -129,6 +130,10 @@ public class GameplayUI extends REPL implements GameHandler {
                 this.board.printBoard(colors, pieces);
                 break;
             case "leave":
+                Leave leave = new Leave(this.authToken, this.gameID);
+                String leaveString = this.gson.toJson(leave);
+                this.wsf.sendMessage(leaveString);
+                this.wsf.disconnect();
                 return true;
             case "m":
                 break;
@@ -259,91 +264,49 @@ public class GameplayUI extends REPL implements GameHandler {
 
     @Override
     public void updateGame(ChessGame game) {
-
         this.game = game;
 
-
-        for (int i = 1; i < 9; i++) {
-            for (int j = 1; j < 9; j++) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
 
                 String piece = EMPTY;
-                int modifier = i;
-                int colModifier = j;
 
-                if (playerColor == null || playerColor == ChessGame.TeamColor.WHITE) {
-                    modifier = 9 - i;
-                }
-                else {
-                    colModifier = 9-j;
-                }
+                if (game.getBoard().chessBoard[i][j] != null) {
+                    boolean pieceIsWhite = game.getBoard().chessBoard[i][j].getTeamColor() == ChessGame.TeamColor.WHITE;
 
-                if (game.getBoard().chessBoard[modifier][colModifier] != null) {
-
-                    boolean pieceIsWhite = false;
-
-                    if (game.getBoard().chessBoard[modifier][colModifier].getTeamColor() == ChessGame.TeamColor.WHITE) {
-                        pieceIsWhite = true;
-                    }
-
-                    switch (game.getBoard().chessBoard[modifier][colModifier].getPieceType()) {
+                    switch (game.getBoard().chessBoard[i][j].getPieceType()) {
                         case ChessPiece.PieceType.PAWN:
-                            if (pieceIsWhite) {
-                                piece = WHITE_PAWN;
-                            } else {
-                                piece = BLACK_PAWN;
-                            }
+                            piece = pieceIsWhite ? WHITE_PAWN : BLACK_PAWN;
                             break;
                         case ChessPiece.PieceType.KNIGHT:
-                            if (pieceIsWhite) {
-                                piece = WHITE_KNIGHT;
-                            } else {
-                                piece = BLACK_KNIGHT;
-                            }
+                            piece = pieceIsWhite ? WHITE_KNIGHT : BLACK_KNIGHT;
                             break;
                         case ChessPiece.PieceType.ROOK:
-                            if (pieceIsWhite) {
-                                piece = WHITE_ROOK;
-                            } else {
-                                piece = BLACK_ROOK;
-                            }
+                            piece = pieceIsWhite ? WHITE_ROOK : BLACK_ROOK;
                             break;
                         case ChessPiece.PieceType.BISHOP:
-                            if (pieceIsWhite) {
-                                piece = WHITE_BISHOP;
-                            } else {
-                                piece = BLACK_BISHOP;
-                            }
+                            piece = pieceIsWhite ? WHITE_BISHOP : BLACK_BISHOP;
                             break;
                         case ChessPiece.PieceType.QUEEN:
-                            if (pieceIsWhite) {
-                                piece = WHITE_QUEEN;
-                            } else {
-                                piece = BLACK_QUEEN;
-                            }
+                            piece = pieceIsWhite ? WHITE_QUEEN : BLACK_QUEEN;
                             break;
                         case ChessPiece.PieceType.KING:
-                            if (pieceIsWhite) {
-                                piece = WHITE_KING;
-                            } else {
-                                piece = BLACK_KING;
-                            }
+                            piece = pieceIsWhite ? WHITE_KING : BLACK_KING;
                             break;
                         default:
                             piece = EMPTY;
-
+                            break;
                     }
-
                 }
 
-
-                this.pieces[i-1][j-1] = piece;
-
+                this.pieces[i][j] = piece;
             }
         }
 
         System.out.println(ERASE_SCREEN);
         this.board.printBoard(colors, pieces);
     }
+
 
     @Override
     public void printMessage(String message) {

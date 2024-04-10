@@ -16,6 +16,10 @@ public class UserGameCommand {
         this.gameID = gameID;
     }
 
+    public Integer getGameID() {
+        return gameID;
+    }
+
     public enum CommandType {
         JOIN_PLAYER,
         JOIN_OBSERVER,
