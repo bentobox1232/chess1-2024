@@ -77,6 +77,35 @@ public class GameService {
         }
     }
 
+    public static void joinObserver(String authToken, Integer gameID, WebSocketSessions webSocketSessions){
+        try {
+            GameData gameData = gameDao.getGameByID(gameID);
+            AuthData authData = authDao.getAuth(authToken);
+
+            if (gameData == null || authData == null){
+                Error error = new Error("Error: Invalid game ID or authToken");
+                sendMessage(webSocketSessions, gameID, authToken, error);
+                return;
+            }
+            if (gameData.getGame() == null){
+                Error error = new Error("Error: Game has already ended");
+                sendMessage(webSocketSessions, gameID, authToken, error);
+                return;
+            }
+
+            LoadGame loadGame = new LoadGame(gameData.getGame());
+            sendMessage(webSocketSessions, gameID, authToken, loadGame);
+
+            Notification notification = new Notification(authData.getUsername() + " joined game as an observer");
+            broadcastMessage(webSocketSessions, gameID, authToken, notification);
+
+        } catch (DataAccessException e) {
+            Error error = new Error("Error: Invalid Game ID or Game Does Not Exist");
+            sendMessage(webSocketSessions, gameID, authToken, error);
+        }
+    }
+
+
 
 
     public static void leaveGame(String authToken, Integer gameID, WebSocketSessions webSocketSessions){

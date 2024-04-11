@@ -30,6 +30,8 @@ public class WebSocketHandler {
 
 
         } else if (msg.getCommandType() == UserGameCommand.CommandType.JOIN_OBSERVER) {
+            JoinObserver commandObj = new Gson().fromJson(message, JoinObserver.class);
+            GameService.joinObserver(commandObj.getAuthString(), commandObj.getGameID(), webSocketSessions);
 
         } else if (msg.getCommandType() == UserGameCommand.CommandType.JOIN_PLAYER) {
             JoinPlayer command = new Gson().fromJson(message, JoinPlayer.class);
