@@ -25,7 +25,12 @@ public class JoinHandler implements Route {
         gson = new Gson();
 
         String authToken = request.headers("Authorization");
+
         JoinRequest joinRequest = gson.fromJson(request.body(), JoinRequest.class);
+
+        if (joinRequest.getAuthToken() == null) {
+            joinRequest.setAuthToken(authToken);
+        }
 
         JoinService joinService = new JoinService(gameDataAccess, authDataAccess);
         JoinResult joinResult = joinService.handleJoinRequest(joinRequest);

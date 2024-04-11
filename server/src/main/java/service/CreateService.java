@@ -24,7 +24,7 @@ public class CreateService {
         try {
             if(isValidRequest(createRequest)) {
                 // Validate authtoken
-                if(!isAuthorized(createRequest.getAuthToken())) {
+                if(!isAuthorized(createRequest.getAuthToken()) && !isAuthorized(authToken)) {
                     return new CreateResult(401, false, "Error: unauthorized");
                 }
 
