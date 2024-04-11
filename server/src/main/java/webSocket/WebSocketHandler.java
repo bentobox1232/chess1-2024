@@ -40,6 +40,8 @@ public class WebSocketHandler {
             gameService.leaveGame(commandObj.getAuthString(), commandObj.getGameID(), webSocketSessions);
 
         } else if (msg.getCommandType() == UserGameCommand.CommandType.RESIGN) {
+            Resign command = new Gson().fromJson(message, Resign.class);
+            gameService.resignGame(command.getAuthString(), command.getGameID(), webSocketSessions);
 
         }
 

@@ -107,6 +107,40 @@ public class GameService {
         }
     }
 
+    public static void resignGame(String authToken, Integer gameID, WebSocketSessions webSocketSessions){
+        try {
+            GameData gameData = gameDao.getGameByID(gameID);
+            AuthData authData = authDao.getAuth(authToken);
+
+            if (gameData.getGame() == null){
+                Error error = new Error("Error: Game has already ended");
+                sendMessage(webSocketSessions, gameID, authToken, error);
+                return;
+            }
+            if (!Objects.equals(authData.getUsername(), gameData.getBlackUsername()) && !Objects.equals(authData.getUsername(), gameData.getWhiteUsername())){
+                Error error = new Error("Error: Observers cannot resign. type leave to leave.");
+                sendMessage(webSocketSessions, gameID, authToken, error);
+                return;
+            }
+
+            gameDao.updateGame(new GameData(gameData.getGameID(), gameData.getWhiteUsername(), gameData.getBlackUsername(), "GAME ENDED (" + gameData.getGameName() + ")", null));
+
+            Notification notification = new Notification(authData.getUsername() + "resigned from the game");
+            sendMessage(webSocketSessions, gameID, authToken, notification);
+            broadcastMessage(webSocketSessions, gameID, authToken, notification);
+
+            Map<String, Session> sessions = webSocketSessions.getSessionsForGame(gameID);
+            for (String authorization : sessions.keySet()){
+                webSocketSessions.removeSessionFromGame(gameID, authorization);
+            }
+
+
+        } catch (DataAccessException e) {
+            Error error = new Error("Error: Invalid Game ID or Game Does Not Exist");
+            sendMessage(webSocketSessions, gameID, authToken, error);
+        }
+    }
+
     private static void sendMessage(WebSocketSessions webSocketSessions, Integer gameID, String authToken, ServerMessage message) {
         Session session = webSocketSessions.getSessionsForGame(gameID).get(authToken);
         if (session != null) {

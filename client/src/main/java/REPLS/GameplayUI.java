@@ -9,6 +9,7 @@ import chess.ChessPosition;
 import com.google.gson.Gson;
 import webSocketMessages.userCommands.JoinPlayer;
 import webSocketMessages.userCommands.Leave;
+import webSocketMessages.userCommands.Resign;
 
 import java.util.Collection;
 
@@ -138,11 +139,15 @@ public class GameplayUI extends REPL implements GameHandler {
             case "m":
                 break;
             case "resign":
+                Resign resign = new Resign(this.authToken, this.gameID);
+                String resignString = this.gson.toJson(resign);
+                this.wsf.sendMessage(resignString);
+                this.wsf.disconnect();
                 return true;
             case "h":
                 ChessPosition highlightPosition = getPosition(parsedInput[1]);
 
-                if (highlightPosition.getColumn() > 8 || highlightPosition.getColumn() < 1 || highlightPosition.getRow() > 8 || highlightPosition.getRow() < 1 ) {
+                if (highlightPosition.getColumn() > 7 || highlightPosition.getColumn() < 0 || highlightPosition.getRow() > 7 || highlightPosition.getRow() < 0 ) {
                     System.out.println(SET_TEXT_COLOR_LIGHT_GREY + "Invalid selection. make sure it is formatted correctly with the right location on the board.");
                     break;
                 }
@@ -162,7 +167,9 @@ public class GameplayUI extends REPL implements GameHandler {
             return;
         }
 
-        Collection<ChessMove> potentialMoves = game.validMoves(startPosition);
+        ChessPosition actualPosition = new ChessPosition(startPosition.getRow() + 1, startPosition.getColumn() + 1);
+
+        Collection<ChessMove> potentialMoves = game.validMoves(actualPosition);
 
         if (potentialMoves.isEmpty()){
             System.out.println(SET_TEXT_COLOR_LIGHT_GREY + "no valid moves");
@@ -213,34 +220,34 @@ public class GameplayUI extends REPL implements GameHandler {
 
         switch (coordinates.toLowerCase().charAt(0)){
             case 'a':
-                col = 8;
-                break;
-            case 'b':
                 col = 7;
                 break;
-            case 'c':
+            case 'b':
                 col = 6;
                 break;
-            case 'd':
+            case 'c':
                 col = 5;
                 break;
-            case 'e':
+            case 'd':
                 col = 4;
                 break;
-            case 'f':
+            case 'e':
                 col = 3;
                 break;
-            case 'g':
+            case 'f':
                 col = 2;
                 break;
-            case 'h':
+            case 'g':
                 col = 1;
+                break;
+            case 'h':
+                col = 0;
                 break;
             default:
 
         }
 
-        row = 9 - row;
+        row = 8 - row;
 
         return new ChessPosition(row, col);
     }

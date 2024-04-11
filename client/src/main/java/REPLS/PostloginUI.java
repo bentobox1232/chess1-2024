@@ -33,7 +33,7 @@ public class PostloginUI extends REPL {
                 }
                 CreateResult resultC = ServerFacade.createGame(arr[1], authToken);
                 if (resultC == null){
-                    System.out.println("GameID already exists: "+ resultC.getGameID());
+                    System.out.println("GameID already exists: "+ resultC.getMessage());
                 } else {
                     System.out.println("Game Created ID: "+ resultC.getGameID());
                 }
