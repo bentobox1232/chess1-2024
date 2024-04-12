@@ -2,7 +2,6 @@ package webSocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
-import chess.ChessPosition;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dao.AuthDAO;
@@ -173,7 +172,7 @@ public class GameService {
         }
     }
 
-    public static void makeMove(String authToken, Integer gameID, ChessMove move, WebSocketSessions webSocketSessions){
+    public static void makeMove(String command, String authToken, Integer gameID, ChessMove move, WebSocketSessions webSocketSessions){
         try {
             GameData gameData = gameDao.getGameByID(gameID);
             AuthData authData = authDao.getAuth(authToken);
@@ -195,13 +194,30 @@ public class GameService {
                 return;
             }
 
-            ChessMove correctMove = new ChessMove( new ChessPosition(move.getStartPosition().getRow()+ 1, move.getStartPosition().getColumn() + 1)
-                    ,new ChessPosition(move.getEndPosition().getRow()+ 1, move.getEndPosition().getColumn() + 1), move.getPromotionPiece());
+//            ChessMove correctMove = new ChessMove( new ChessPosition(move.getStartPosition().getRow()+ 1, move.getStartPosition().getColumn() + 1)
+//                    ,new ChessPosition(move.getEndPosition().getRow()+ 1, move.getEndPosition().getColumn() + 1), move.getPromotionPiece());
 
 
+//            if (command == "MAKE_MOVE") {
+//                if(gameData.getGame().validMoves(move.getStartPosition()).contains(move)) {
+//                    gameData.getGame().makeMove(move);
+//                } else {
+//                    Error error = new Error("Error: Invalid move. Make sure you are not in check and your syntax is correct by typing help.");
+//                    sendMessage(webSocketSessions, gameID, authToken, error);
+//                    return;
+//                }
+//            } else {
+//                if(gameData.getGame().validMoves(correctMove.getStartPosition()).contains(correctMove)) {
+//                    gameData.getGame().makeMove(correctMove);
+//                } else {
+//                    Error error = new Error("Error: Invalid move. Make sure you are not in check and your syntax is correct by typing help.");
+//                    sendMessage(webSocketSessions, gameID, authToken, error);
+//                    return;
+//                }
+//            }
 
-            if(gameData.getGame().validMoves(correctMove.getStartPosition()).contains(correctMove)) {
-                gameData.getGame().makeMove(correctMove);
+            if(gameData.getGame().validMoves(move.getStartPosition()).contains(move)) {
+                gameData.getGame().makeMove(move);
             } else {
                 Error error = new Error("Error: Invalid move. Make sure you are not in check and your syntax is correct by typing help.");
                 sendMessage(webSocketSessions, gameID, authToken, error);

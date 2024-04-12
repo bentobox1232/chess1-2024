@@ -28,7 +28,7 @@ public class WebSocketHandler {
 
         if (msg.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE) {
             MakeMove command = new Gson().fromJson(message, MakeMove.class);
-            GameService.makeMove(command.getAuthString(), command.getGameID(), command.getMove(), webSocketSessions);
+            GameService.makeMove(msg.getCommandType().toString(), command.getAuthString(), command.getGameID(), command.getMove(), webSocketSessions);
 
         } else if (msg.getCommandType() == UserGameCommand.CommandType.JOIN_OBSERVER) {
             JoinObserver commandObj = new Gson().fromJson(message, JoinObserver.class);
