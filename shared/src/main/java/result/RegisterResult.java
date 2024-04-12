@@ -18,12 +18,6 @@ public class RegisterResult {
         this.authToken = authToken;
     }
 
-    public RegisterResult(int errorCode, boolean success, String message) {
-        this.errorCode = errorCode;
-        this.success = success;
-        this.message = message;
-    }
-
     public boolean isSuccess() {
         return success;
     }
