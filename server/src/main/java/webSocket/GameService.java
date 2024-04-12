@@ -1,6 +1,9 @@
 package webSocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dao.AuthDAO;
 import dao.GameDAO;
@@ -166,6 +169,84 @@ public class GameService {
 
         } catch (DataAccessException e) {
             Error error = new Error("Error: Invalid Game ID or Game Does Not Exist");
+            sendMessage(webSocketSessions, gameID, authToken, error);
+        }
+    }
+
+    public static void makeMove(String authToken, Integer gameID, ChessMove move, WebSocketSessions webSocketSessions){
+        try {
+            GameData gameData = gameDao.getGameByID(gameID);
+            AuthData authData = authDao.getAuth(authToken);
+
+            if (gameData.getGame() == null){
+                Error error = new Error("Error: Game has already ended");
+                sendMessage(webSocketSessions, gameID, authToken, error);
+                return;
+            }
+            if ((!Objects.equals(authData.getUsername(), gameData.getWhiteUsername()) && gameData.getGame().getTeamTurn() == ChessGame.TeamColor.WHITE) || (!Objects.equals(authData.getUsername(), gameData.getBlackUsername()) && gameData.getGame().getTeamTurn() == ChessGame.TeamColor.BLACK)){
+                Error error = new Error("Error: It is not your turn to move.");
+                sendMessage(webSocketSessions, gameID, authToken, error);
+                return;
+            }
+
+            if (gameData.getGame().isInCheckmate(ChessGame.TeamColor.WHITE) || gameData.getGame().isInCheckmate(ChessGame.TeamColor.BLACK)){
+                Error error = new Error("Error: Game is in checkmate and no other moves are allowed.");
+                sendMessage(webSocketSessions, gameID, authToken, error);
+                return;
+            }
+
+            ChessMove correctMove = new ChessMove( new ChessPosition(move.getStartPosition().getRow()+ 1, move.getStartPosition().getColumn() + 1)
+                    ,new ChessPosition(move.getEndPosition().getRow()+ 1, move.getEndPosition().getColumn() + 1), move.getPromotionPiece());
+
+
+
+            if(gameData.getGame().validMoves(correctMove.getStartPosition()).contains(correctMove)) {
+                gameData.getGame().makeMove(correctMove);
+            } else {
+                Error error = new Error("Error: Invalid move. Make sure you are not in check and your syntax is correct by typing help.");
+                sendMessage(webSocketSessions, gameID, authToken, error);
+                return;
+            }
+
+            gameDao.updateGame(new GameData(gameID, gameData.getWhiteUsername(), gameData.getBlackUsername(), gameData.getGameName(), gameData.getGame()));
+
+            LoadGame loadGame = new LoadGame(gameData.getGame());
+            sendMessage(webSocketSessions, gameID, authToken, loadGame);
+            broadcastMessage(webSocketSessions, gameID, authToken, loadGame);
+
+            Notification notification = new Notification(authData.getUsername() + " moved a piece!");
+            broadcastMessage(webSocketSessions, gameID, authToken, notification);
+
+
+            if (gameData.getGame().isInCheck(ChessGame.TeamColor.WHITE) ){
+                Notification gameEvent;
+                if (gameData.getGame().isInCheckmate(ChessGame.TeamColor.WHITE) ){
+                    gameEvent = new Notification("White is currently in checkmate.\nGAME OVER");
+                } else {
+                    gameEvent = new Notification("White is currently in check!");
+                }
+
+                sendMessage(webSocketSessions, gameID, authToken, gameEvent);
+                broadcastMessage(webSocketSessions, gameID, authToken, gameEvent);
+
+            } else if (gameData.getGame().isInCheck(ChessGame.TeamColor.BLACK)){
+                Notification gameEvent;
+                if (gameData.getGame().isInCheckmate(ChessGame.TeamColor.BLACK)){
+                    gameEvent = new Notification("Black is currently in checkmate.\nGAME OVER");
+                } else {
+                    gameEvent = new Notification("Black is currently in check!");
+                }
+
+                sendMessage(webSocketSessions, gameID, authToken, gameEvent);
+                broadcastMessage(webSocketSessions, gameID, authToken, gameEvent);
+            }
+
+
+        } catch (DataAccessException e) {
+            Error error = new Error("Error: Invalid Game ID or Game Does Not Exist");
+            sendMessage(webSocketSessions, gameID, authToken, error);
+        } catch (InvalidMoveException e){
+            Error error = new Error("Error: Invalid Move. Make sure it is your turn, and your letter columns and number rows are formatted correctly.");
             sendMessage(webSocketSessions, gameID, authToken, error);
         }
     }

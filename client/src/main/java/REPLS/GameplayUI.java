@@ -9,6 +9,7 @@ import chess.ChessPosition;
 import com.google.gson.Gson;
 import webSocketMessages.userCommands.JoinPlayer;
 import webSocketMessages.userCommands.Leave;
+import webSocketMessages.userCommands.MakeMove;
 import webSocketMessages.userCommands.Resign;
 
 import java.util.Collection;
@@ -137,6 +138,22 @@ public class GameplayUI extends REPL implements GameHandler {
                 this.wsf.disconnect();
                 return true;
             case "m":
+                if (playerColor != ChessGame.TeamColor.WHITE && playerColor != ChessGame.TeamColor.BLACK){
+                    System.out.println(SET_TEXT_COLOR_LIGHT_GREY + "Observers cannot move pieces on the board.");
+                    break;
+                }
+
+                ChessPosition startPosition = getPosition(parsedInput[1]);
+                ChessPosition endPosition = getPosition(parsedInput[2]);
+
+                if (startPosition.getColumn() > 7 || startPosition.getColumn() < 0 || startPosition.getRow() > 7 || startPosition.getRow() < 0 || endPosition.getColumn() > 7 || endPosition.getColumn() < 0 || endPosition.getRow() > 7 || endPosition.getRow() < 0 ) {
+                    System.out.println(SET_TEXT_COLOR_LIGHT_GREY + "Invalid move. make sure it is formatted correctly with spaces between.");
+                    break;
+                }
+
+                MakeMove makeMove = new MakeMove(this.authToken, this.gameID, new ChessMove(startPosition, endPosition, null));
+                String makeMoveString = this.gson.toJson(makeMove);
+                this.wsf.sendMessage(makeMoveString);
                 break;
             case "resign":
                 Resign resign = new Resign(this.authToken, this.gameID);
