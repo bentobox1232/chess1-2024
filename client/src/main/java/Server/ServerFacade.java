@@ -99,8 +99,6 @@ public class ServerFacade {
             os.write(input, 0, input.length);
         }
 
-        int responseCode = connection.getResponseCode();
-
         TResult result = null;
         try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
             StringBuilder response = new StringBuilder();
@@ -130,7 +128,6 @@ public class ServerFacade {
             connection.setRequestProperty("Authorization", request.getAuthToken());
         }
 
-        int responseCode = connection.getResponseCode();
         TResult result = null;
 
         // Handle response
@@ -161,7 +158,6 @@ public class ServerFacade {
         }
 
         // Handle the response and parse it into the specified result class
-        int responseCode = connection.getResponseCode();
         StringBuilder response = new StringBuilder();
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(connection.getInputStream()))) {
@@ -209,24 +205,5 @@ public class ServerFacade {
 
         connection.disconnect();
         return result;
-    }
-    private void handleResponse(HttpURLConnection connection) throws IOException {
-        int responseCode = connection.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
-                String responseLine;
-                StringBuilder response = new StringBuilder();
-                while ((responseLine = br.readLine()) != null) {
-                    response.append(responseLine.trim());
-                }
-                System.out.println(response);
-            }
-        } else {
-            try (InputStream responseBody = connection.getErrorStream()) {
-                // Handle error response body from InputStream ...
-            }
-        }
-        connection.disconnect();
     }
 }
