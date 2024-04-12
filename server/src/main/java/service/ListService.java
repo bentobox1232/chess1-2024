@@ -10,8 +10,8 @@ import result.ListResult;
 import java.util.List;
 
 public class ListService {
-    private GameDataAccess gameDataAccess;
-    private AuthDataAccess authDataAccess;
+    private final GameDataAccess gameDataAccess;
+    private final AuthDataAccess authDataAccess;
 
     public ListService(GameDataAccess gameDataAccess, AuthDataAccess authDataAccess) {
         this.gameDataAccess = gameDataAccess;
@@ -34,9 +34,6 @@ public class ListService {
     }
 
     private boolean isAuthorized(String authToken) throws DataAccessException {
-        if(authDataAccess.getAuth(authToken) != null) {
-            return true;
-        }
-        return false;
+        return authDataAccess.getAuth(authToken) != null;
     }
 }

@@ -9,7 +9,7 @@ public class AuthData {
 
     public AuthData() {
         authToken = UUID.randomUUID().toString();
-        username = new String();
+        username = "";
     }
 
     public AuthData (String authToken, String username) {

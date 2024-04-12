@@ -12,8 +12,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class RegisterService {
-    private UserDataAccess userDataAccess;
-    private AuthDataAccess authDataAccess;
+    private final UserDataAccess userDataAccess;
+    private final AuthDataAccess authDataAccess;
 
     public RegisterService(UserDataAccess userDataAccess, AuthDataAccess authDataAccess) {
         this.userDataAccess = userDataAccess;

@@ -9,8 +9,8 @@ import request.LoginRequest;
 import result.LoginResult;
 
 public class LoginService {
-    private UserDataAccess userDataAccess;
-    private AuthDataAccess authDataAccess;
+    private final UserDataAccess userDataAccess;
+    private final AuthDataAccess authDataAccess;
 
     public LoginService(UserDataAccess userDataAccess, AuthDataAccess authDataAccess) {
         this.userDataAccess = userDataAccess;

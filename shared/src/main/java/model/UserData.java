@@ -8,9 +8,9 @@ public class UserData {
     private String email;
 
     public UserData() {
-        username = new String();
-        password = new String();
-        email = new String();
+        username = "";
+        password = "";
+        email = "";
     }
 
     public UserData(String username, String password, String email) {

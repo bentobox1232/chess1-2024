@@ -71,11 +71,11 @@ public class PostloginUI extends REPL {
                     System.out.println("Unable to join game\n Make sure the player color is available by typing 'list'");
                     break;
                 }
-                GameplayUI repl;
+                Gameplay repl;
                 if (arr.length == 3){
-                    repl = new GameplayUI(authToken, gameID, arr[2]);
+                    repl = new Gameplay(authToken, gameID, arr[2]);
                 } else {
-                    repl = new GameplayUI(authToken, gameID, null);
+                    repl = new Gameplay(authToken, gameID, null);
                 }
                 repl.start();
                 System.out.println(SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_LIGHT_GREY + "Quit Game Successfully!");

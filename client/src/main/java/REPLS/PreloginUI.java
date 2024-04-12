@@ -25,7 +25,7 @@ public class PreloginUI extends REPL {
                 } else {
                     System.out.println("Welcome "+ resultL.getUsername());
                     PostloginUI repl = new PostloginUI();
-                    repl.authToken = resultL.getAuthToken();
+                    PostloginUI.authToken = resultL.getAuthToken();
                     repl.start();
                 }
                 break;
@@ -35,7 +35,7 @@ public class PreloginUI extends REPL {
                     System.out.println("User Already Exist " + arr[1]);
                 } else {
                     PostloginUI repl = new PostloginUI();
-                    repl.authToken = resultR.getAuthToken();
+                    PostloginUI.authToken = resultR.getAuthToken();
                     repl.start();
                 }
                 break;

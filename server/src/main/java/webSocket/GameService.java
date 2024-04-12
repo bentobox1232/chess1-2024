@@ -194,27 +194,27 @@ public class GameService {
                 return;
             }
 
-//            ChessMove correctMove = new ChessMove( new ChessPosition(move.getStartPosition().getRow()+ 1, move.getStartPosition().getColumn() + 1)
-//                    ,new ChessPosition(move.getEndPosition().getRow()+ 1, move.getEndPosition().getColumn() + 1), move.getPromotionPiece());
 
 
-//            if (command == "MAKE_MOVE") {
-//                if(gameData.getGame().validMoves(move.getStartPosition()).contains(move)) {
-//                    gameData.getGame().makeMove(move);
-//                } else {
-//                    Error error = new Error("Error: Invalid move. Make sure you are not in check and your syntax is correct by typing help.");
-//                    sendMessage(webSocketSessions, gameID, authToken, error);
-//                    return;
-//                }
-//            } else {
-//                if(gameData.getGame().validMoves(correctMove.getStartPosition()).contains(correctMove)) {
-//                    gameData.getGame().makeMove(correctMove);
-//                } else {
-//                    Error error = new Error("Error: Invalid move. Make sure you are not in check and your syntax is correct by typing help.");
-//                    sendMessage(webSocketSessions, gameID, authToken, error);
-//                    return;
-//                }
-//            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             if(gameData.getGame().validMoves(move.getStartPosition()).contains(move)) {
                 gameData.getGame().makeMove(move);

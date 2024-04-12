@@ -7,7 +7,7 @@ import java.util.HashSet;
 
 public class King implements ChessPieceInterface {
 
-    private ChessGame.TeamColor pieceColor;
+    private final ChessGame.TeamColor pieceColor;
 
     public King(ChessGame.TeamColor pieceColor) {
         this.pieceColor = pieceColor;

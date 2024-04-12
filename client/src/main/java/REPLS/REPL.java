@@ -15,10 +15,10 @@ public abstract class REPL {
             String[] arr = line.split(" ");
 
             System.out.print(SET_TEXT_COLOR_LIGHT_GREY + "\n>> ");
-//            String userInput = scanner.nextLine();
+
             System.out.println(ERASE_SCREEN);
 
-//            String[] parsedInput = userInput.split("\\s+");
+
 
             Boolean terminate = evaluate(arr);
 

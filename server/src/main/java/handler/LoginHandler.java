@@ -14,9 +14,9 @@ public class LoginHandler implements Route {
 
     private Gson gson;
 
-    private UserDataAccess userDataAccess;
+    private final UserDataAccess userDataAccess;
 
-    private AuthDataAccess authDataAccess;
+    private final AuthDataAccess authDataAccess;
 
     public LoginHandler(UserDataAccess userDataAccess, AuthDataAccess authDataAccess) {
         this.authDataAccess = authDataAccess;

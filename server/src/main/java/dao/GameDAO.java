@@ -14,7 +14,7 @@ import java.util.Random;
 public class GameDAO implements GameDataAccess {
     private final Connection connection;
 
-    private Random rand = new Random();
+    private final Random rand = new Random();
 
     public GameDAO(Connection connection) {
         this.connection = connection;

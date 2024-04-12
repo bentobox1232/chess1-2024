@@ -8,8 +8,8 @@ import request.JoinRequest;
 import result.JoinResult;
 
 public class JoinService {
-    private GameDataAccess gameDataAccess;
-    private AuthDataAccess authDataAccess;
+    private final GameDataAccess gameDataAccess;
+    private final AuthDataAccess authDataAccess;
     public JoinService(GameDataAccess gameDataAccess, AuthDataAccess authDataAccess) {
         this.gameDataAccess = gameDataAccess;
         this.authDataAccess = authDataAccess;
@@ -44,10 +44,7 @@ public class JoinService {
     }
 
     private boolean isAuthorized(String authToken) throws DataAccessException {
-        if(authDataAccess.getAuth(authToken) != null) {
-            return true;
-        }
-        return false;
+        return authDataAccess.getAuth(authToken) != null;
     }
 
     private void setPlayerColor(GameData game, JoinRequest joinRequest) throws DataAccessException {
@@ -70,9 +67,7 @@ public class JoinService {
         if (game != null) {
             if ("BLACK".equals(color) && game.getBlackUsername() == null) {
                 return false;
-            } else if ("WHITE".equals(color) && game.getWhiteUsername() == null) {
-                return false;
-            }
+            } else return !"WHITE".equals(color) || game.getWhiteUsername() != null;
         }
         return true;
     }

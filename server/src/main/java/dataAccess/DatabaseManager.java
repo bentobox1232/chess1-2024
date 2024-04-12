@@ -9,7 +9,7 @@ public class DatabaseManager {
     private static final String password;
     private static final String connectionUrl;
 
-    private static DatabaseManager instance = new DatabaseManager();
+    private static final DatabaseManager instance = new DatabaseManager();
     /*
      * Load the database information for the db.properties file.
      */

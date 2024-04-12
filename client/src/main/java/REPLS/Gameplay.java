@@ -13,16 +13,14 @@ import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 
-public class GameplayUI extends REPL implements GameHandler {
-
+public class Gameplay extends REPL implements GameHandler {
     WebSocketFacade wsf = new WebSocketFacade(this);
     String authToken;
     Integer gameID;
-
     ChessGame game;
     ChessGame.TeamColor playerColor;
     Gson gson = new Gson();
-    BoardGenerator board;
+    BoardGetter board;
 
     String[][] colors = {
             {SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY},
@@ -47,7 +45,7 @@ public class GameplayUI extends REPL implements GameHandler {
     };
 
 
-    public GameplayUI(String authToken, Integer gameID, String color) {
+    public Gameplay(String authToken, Integer gameID, String color) {
 
         this.authToken = authToken;
         this.gameID = gameID;
@@ -69,7 +67,7 @@ public class GameplayUI extends REPL implements GameHandler {
             JoinObserver joinObserver = new JoinObserver(this.authToken, this.gameID);
             String jsonString = this.gson.toJson(joinObserver);
             this.wsf.sendMessage(jsonString);
-// need to do the observer class
+
 
         }
 
@@ -121,7 +119,7 @@ public class GameplayUI extends REPL implements GameHandler {
     @Override
     protected Boolean evaluate(String[] parsedInput) {
 
-//        Check to see if game is in checkmate
+
 
         if (playerColor != null && game.isInCheckmate(playerColor)){
 
@@ -196,7 +194,7 @@ public class GameplayUI extends REPL implements GameHandler {
             return;
         }
 
-//        alter the colors array.
+
 
         for (ChessMove move : potentialMoves) {
 
@@ -233,8 +231,7 @@ public class GameplayUI extends REPL implements GameHandler {
     }
 
     private ChessPosition getPosition(String coordinates) {
-//        how to go from displayed board to game board
-        int row = extractNumber(coordinates);;
+        int row = extractNumber(coordinates);
         int col = 0;
 
 
@@ -267,7 +264,6 @@ public class GameplayUI extends REPL implements GameHandler {
 
         }
 
-//        row = 8 - row;
 
         return new ChessPosition(row, col);
     }
@@ -343,8 +339,8 @@ public class GameplayUI extends REPL implements GameHandler {
     }
 
     @FunctionalInterface
-    interface BoardGenerator {
-        public void printBoard(String[][] boardColors, String[][] boardPieces);
+    interface BoardGetter {
+        void printBoard(String[][] boardColors, String[][] boardPieces);
     }
 
 

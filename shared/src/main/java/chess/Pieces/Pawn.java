@@ -7,7 +7,7 @@ import java.util.HashSet;
 
 public class Pawn implements ChessPieceInterface {
 
-    private ChessGame.TeamColor pieceColor;
+    private final ChessGame.TeamColor pieceColor;
 
     public Pawn(ChessGame.TeamColor pieceColor) {
         this.pieceColor = pieceColor;

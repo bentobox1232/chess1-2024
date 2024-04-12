@@ -5,7 +5,7 @@ import dataAccess.DataAccessException;
 import result.LogoutResult;
 
 public class LogoutService {
-    private AuthDataAccess authDataAccess;
+    private final AuthDataAccess authDataAccess;
 
     public LogoutService(AuthDataAccess authDataAccess) {
         this.authDataAccess = authDataAccess;

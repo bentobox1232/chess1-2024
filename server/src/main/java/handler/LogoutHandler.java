@@ -12,7 +12,7 @@ import spark.Route;
 
 public class LogoutHandler implements Route {
     private Gson gson;
-    private AuthDataAccess authDataAccess;
+    private final AuthDataAccess authDataAccess;
 
     public LogoutHandler(AuthDataAccess authDataAccess) {
         this.authDataAccess = authDataAccess;

@@ -7,7 +7,7 @@ import java.util.HashSet;
 
 public class Knight implements ChessPieceInterface {
 
-    private ChessGame.TeamColor pieceColor;
+    private final ChessGame.TeamColor pieceColor;
 
     public Knight(ChessGame.TeamColor pieceColor) {
         this.pieceColor = pieceColor;

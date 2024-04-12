@@ -17,9 +17,9 @@ public class ClearHandler implements Route {
 
     private ClearService clearDataService;
     private Gson gson;
-    private AuthDataAccess authDataAccess;
-    private GameDataAccess gameDataAccess;
-    private UserDataAccess userDataAccess;
+    private final AuthDataAccess authDataAccess;
+    private final GameDataAccess gameDataAccess;
+    private final UserDataAccess userDataAccess;
 
     public ClearHandler(AuthDataAccess authDataAccess, GameDataAccess gameDataAccess, UserDataAccess userDataAccess) {
         this.authDataAccess = authDataAccess;

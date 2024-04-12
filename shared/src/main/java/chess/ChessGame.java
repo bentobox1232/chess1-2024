@@ -245,10 +245,7 @@ public class ChessGame {
             }
         }
 
-        if(moves.isEmpty()){
-            return true;
-        }
-        return false;
+        return moves.isEmpty();
     }
 
     /**
@@ -289,10 +286,7 @@ public class ChessGame {
             }
         }
 
-        if(moves.isEmpty()){
-            return true;
-        }
-        return false;
+        return moves.isEmpty();
     }
 
     /**

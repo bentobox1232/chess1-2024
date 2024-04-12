@@ -7,7 +7,7 @@ import java.util.HashSet;
 
 public class Rook implements ChessPieceInterface {
 
-    private ChessGame.TeamColor pieceColor;
+    private final ChessGame.TeamColor pieceColor;
 
     public Rook(ChessGame.TeamColor pieceColor) {
         this.pieceColor = pieceColor;

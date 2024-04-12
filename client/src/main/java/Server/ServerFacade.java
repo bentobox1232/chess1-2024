@@ -7,9 +7,13 @@ import result.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class ServerFacade {
     public static String baseUrl = "http://localhost:";
+
+    public ServerFacade(int port) {
+    }
 
 
     public static RegisterResult registerUser(String userName, String password, String email) throws IOException {
@@ -73,7 +77,7 @@ public class ServerFacade {
             request.setPlayerColor(color.toUpperCase());
 
         }
-//        request.setPlayerColor(color.toUpperCase());
+
         request.setAuthToken(authToken);
 
         return doPut(endpoint, request, JoinResult.class);
@@ -91,14 +95,14 @@ public class ServerFacade {
         connection.setRequestProperty("Content-Type", "application/json");
 
         try (OutputStream os = connection.getOutputStream()) {
-            byte[] input = requestBody.getBytes("utf-8");
+            byte[] input = requestBody.getBytes(StandardCharsets.UTF_8);
             os.write(input, 0, input.length);
         }
 
         int responseCode = connection.getResponseCode();
 
         TResult result = null;
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
             StringBuilder response = new StringBuilder();
             String responseLine;
             while ((responseLine = br.readLine()) != null) {
@@ -131,7 +135,7 @@ public class ServerFacade {
 
         // Handle response
         StringBuilder response = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
             String responseLine;
             while ((responseLine = br.readLine()) != null) {
                 response.append(responseLine);
@@ -185,14 +189,14 @@ public class ServerFacade {
         connection.setRequestProperty("Content-Type", "application/json");
 
         try (OutputStream os = connection.getOutputStream()) {
-            byte[] input = requestBody.getBytes("utf-8");
+            byte[] input = requestBody.getBytes(StandardCharsets.UTF_8);
             os.write(input, 0, input.length);
         }
 
         int responseCode = connection.getResponseCode();
 
         TResult result = null;
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
             StringBuilder response = new StringBuilder();
             String responseLine;
             while ((responseLine = br.readLine()) != null) {
@@ -210,13 +214,13 @@ public class ServerFacade {
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream(), "utf-8"))) {
+                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
                 String responseLine;
                 StringBuilder response = new StringBuilder();
                 while ((responseLine = br.readLine()) != null) {
                     response.append(responseLine.trim());
                 }
-                System.out.println(response.toString());
+                System.out.println(response);
             }
         } else {
             try (InputStream responseBody = connection.getErrorStream()) {

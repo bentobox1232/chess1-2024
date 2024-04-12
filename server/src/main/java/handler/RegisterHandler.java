@@ -14,9 +14,9 @@ public class RegisterHandler implements Route {
 
     private Gson gson;
 
-    private UserDataAccess userDataAccess;
+    private final UserDataAccess userDataAccess;
 
-    private AuthDataAccess authDataAccess;
+    private final AuthDataAccess authDataAccess;
 
 
     public RegisterHandler(UserDataAccess userDataAccess, AuthDataAccess authDataAccess) {

@@ -16,9 +16,9 @@ public class Server {
         try {
             DatabaseManager databaseManager = DatabaseManager.getInstance();
 
-            databaseManager.createDatabase();
+            DatabaseManager.createDatabase();
 
-            Connection databaseConnection = databaseManager.getConnection();
+            Connection databaseConnection = DatabaseManager.getConnection();
 
 
             UserDataAccess userDataAccess = new UserDAO(databaseConnection);

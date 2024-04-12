@@ -26,10 +26,7 @@ public class MemoryUserDataAccess implements UserDataAccess {
     @Override
     public boolean isCorrectLoginInfo(String username, String password) {
         UserData user = usersByUsername.get(username);
-        if(user != null && password.equals(user.getPassword())) {
-            return true;
-        }
-        return false;
+        return user != null && password.equals(user.getPassword());
     }
 
     @Override

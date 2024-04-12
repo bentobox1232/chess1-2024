@@ -11,9 +11,9 @@ import result.CreateResult;
 import java.util.Random;
 
 public class CreateService {
-    private Random rand = new Random();
-    private GameDataAccess gameDataAccess;
-    private AuthDataAccess authDataAccess;
+    private final Random rand = new Random();
+    private final GameDataAccess gameDataAccess;
+    private final AuthDataAccess authDataAccess;
 
     public CreateService(GameDataAccess gameDataAccess, AuthDataAccess authDataAccess) {
         this.gameDataAccess = gameDataAccess;
@@ -53,9 +53,6 @@ public class CreateService {
     }
 
     private boolean isAuthorized(String authToken) throws DataAccessException{
-        if(authDataAccess.getAuth(authToken) != null) {
-            return true;
-        }
-        return false;
+        return authDataAccess.getAuth(authToken) != null;
     }
 }

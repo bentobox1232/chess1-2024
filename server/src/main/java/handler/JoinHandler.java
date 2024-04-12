@@ -12,8 +12,8 @@ import spark.Route;
 
 public class JoinHandler implements Route {
     private Gson gson;
-    private GameDataAccess gameDataAccess;
-    private AuthDataAccess authDataAccess;
+    private final GameDataAccess gameDataAccess;
+    private final AuthDataAccess authDataAccess;
 
     public JoinHandler(GameDataAccess gameDataAccess, AuthDataAccess authDataAccess) {
         this.gameDataAccess = gameDataAccess;

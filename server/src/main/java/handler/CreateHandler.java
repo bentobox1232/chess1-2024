@@ -12,8 +12,8 @@ import spark.Route;
 
 public class CreateHandler implements Route {
     private Gson gson;
-    private GameDataAccess gameDataAccess;
-    private AuthDataAccess authDataAccess;
+    private final GameDataAccess gameDataAccess;
+    private final AuthDataAccess authDataAccess;
 
     public CreateHandler(GameDataAccess gameDataAccess, AuthDataAccess authDataAccess) {
         this.gameDataAccess = gameDataAccess;
