@@ -10,18 +10,11 @@ public class RegisterResult {
         return authToken;
     }
 
-    public void setAuthToken(String authToken) {
-        this.authToken = authToken;
-    }
-
     private String authToken;
 
-    private String username;
-
-    public RegisterResult(int errorCode, boolean success, String userName, String authToken) {
+    public RegisterResult(int errorCode, boolean success, String authToken) {
         this.errorCode = errorCode;
         this.success = success;
-        this.username = userName;
         this.authToken = authToken;
     }
 
@@ -35,23 +28,8 @@ public class RegisterResult {
         return success;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public int getErrorCode() {
         return errorCode;
     }
 
-    public void setErrorCode(int errorCode) {
-        this.errorCode = errorCode;
-    }
 }

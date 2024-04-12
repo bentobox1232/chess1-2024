@@ -6,11 +6,6 @@ public class JoinRequest {
     String authToken;
 
     public JoinRequest(){}
-    public JoinRequest(String authToken, String playerColor, Integer gameID) {
-        this.authToken = authToken;
-        this.playerColor = playerColor;
-        this.gameID = gameID;
-    }
 
     public String getPlayerColor() {
         return playerColor;

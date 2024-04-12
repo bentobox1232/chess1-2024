@@ -8,9 +8,6 @@ import model.UserData;
 import request.RegisterRequest;
 import result.RegisterResult;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 public class RegisterService {
     private final UserDataAccess userDataAccess;
     private final AuthDataAccess authDataAccess;
@@ -43,7 +40,7 @@ public class RegisterService {
                 // Generate an authToken for the registered user
                 String authToken = generateAuthToken(newUser.getUsername());
 
-                return new RegisterResult(200, true, registedUser.getUsername(), authToken);
+                return new RegisterResult(200, true, authToken);
             } else {
                 return new RegisterResult(400, false, "Error: bad request");
             }

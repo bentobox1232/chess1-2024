@@ -26,40 +26,16 @@ public class LoginResult {
         return authToken;
     }
 
-    public void setAuthToken(String authToken) {
-        this.authToken = authToken;
-    }
-
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public Boolean isSuccess() {
         return success;
     }
 
-    public void setSuccess(Boolean success) {
-        this.success = success;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public int getErrorCode() {
         return errorCode;
-    }
-
-    public void setErrorCode(int errorCode) {
-        this.errorCode = errorCode;
     }
 
 

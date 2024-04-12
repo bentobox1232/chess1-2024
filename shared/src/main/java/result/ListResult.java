@@ -26,30 +26,12 @@ public class ListResult {
         return errorCode;
     }
 
-    public void setErrorCode(int errorCode) {
-        this.errorCode = errorCode;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public List<GameData> getGames() {
         return games;
     }
 
-    public void setGames(List<GameData> games) {
-        this.games = games;
-    }
     public boolean isSuccess() {
         return success;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
 }

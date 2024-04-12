@@ -12,14 +12,6 @@ public class CreateRequest {
         this.gameName = gameName;
     }
 
-    public Integer getGameId() {
-        return gameId;
-    }
-
-    public void setGameId(Integer gameId) {
-        this.gameId = gameId;
-    }
-
     public String getAuthToken() {
         return authToken;
     }
