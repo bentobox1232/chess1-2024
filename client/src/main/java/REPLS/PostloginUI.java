@@ -60,7 +60,13 @@ public class PostloginUI extends REPL {
                 GameData selectedGame = games.get(Integer.valueOf(arr[1]) - 1);
                 int gameID = selectedGame.getGameID(); // Retrieve the actual game ID
 
-                JoinResult message = ServerFacade.joinGame(authToken, gameID, arr[2]);
+                JoinResult message = new JoinResult(0,true);
+                if (arr.length == 3){
+                    message = ServerFacade.joinGame(authToken, gameID, arr[2]);
+                } else {
+                    message = ServerFacade.joinGame(authToken, gameID, null);
+
+                }
                 if (message == null){
                     System.out.println("Unable to join game\n Make sure the player color is available by typing 'list'");
                     break;

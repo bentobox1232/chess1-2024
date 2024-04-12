@@ -7,10 +7,7 @@ import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
-import webSocketMessages.userCommands.JoinPlayer;
-import webSocketMessages.userCommands.Leave;
-import webSocketMessages.userCommands.MakeMove;
-import webSocketMessages.userCommands.Resign;
+import webSocketMessages.userCommands.*;
 
 import java.util.Collection;
 
@@ -68,6 +65,10 @@ public class GameplayUI extends REPL implements GameHandler {
             this.wsf.sendMessage(jsonString);
         } else {
             this.playerColor = null;
+
+            JoinObserver joinObserver = new JoinObserver(this.authToken, this.gameID);
+            String jsonString = this.gson.toJson(joinObserver);
+            this.wsf.sendMessage(jsonString);
 // need to do the observer class
 
         }

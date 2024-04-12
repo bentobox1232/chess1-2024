@@ -69,7 +69,11 @@ public class ServerFacade {
         String endpoint = baseUrl + "/game";
         JoinRequest request = new JoinRequest();
         request.setGameID(gameID);
-        request.setPlayerColor(color.toUpperCase());
+        if (color != null) {
+            request.setPlayerColor(color.toUpperCase());
+
+        }
+//        request.setPlayerColor(color.toUpperCase());
         request.setAuthToken(authToken);
 
         return doPut(endpoint, request, JoinResult.class);
