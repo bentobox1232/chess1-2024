@@ -35,39 +35,18 @@ public class Queen implements ChessPieceInterface {
 
         addDiagonalMoves(board, myPosition, validMoves, -1, -1);
 
-        addSideMoves(board, myPosition, validMoves, 0, 1);
+        addDiagonalMoves(board, myPosition, validMoves, 0, 1);
 
-        addSideMoves(board, myPosition, validMoves, 0, -1);
+        addDiagonalMoves(board, myPosition, validMoves, 0, -1);
 
-        addSideMoves(board, myPosition, validMoves, 1, 0);
+        addDiagonalMoves(board, myPosition, validMoves, 1, 0);
 
-        addSideMoves(board, myPosition, validMoves, -1, 0);
+        addDiagonalMoves(board, myPosition, validMoves, -1, 0);
 
         return validMoves;
     }
 
     private void addDiagonalMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> validMoves, int rowDirection, int colDirection) {
-        int row = myPosition.getRow() + rowDirection;
-        int col = myPosition.getColumn() + colDirection;
-
-        while (board.isValidPosition(row, col)) {
-            ChessPosition endPosition = new ChessPosition(row, col);
-            ChessPiece targetPiece = board.getPiece(endPosition);
-
-            if (targetPiece == null || targetPiece.getTeamColor() != getTeamColor()) {
-                validMoves.add(new ChessMove(myPosition, endPosition, null));
-            }
-
-            if (targetPiece != null) {
-                break;
-            }
-
-            row += rowDirection;
-            col += colDirection;
-        }
-    }
-
-    private void addSideMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> validMoves, int rowDirection, int colDirection) {
         int row = myPosition.getRow() + rowDirection;
         int col = myPosition.getColumn() + colDirection;
 

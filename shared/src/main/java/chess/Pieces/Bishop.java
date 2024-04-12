@@ -27,35 +27,38 @@ public class Bishop implements ChessPieceInterface {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> validMoves = new HashSet<>();
 
-        addDiagonalMoves(board, myPosition, validMoves, 1, 1);
+        addBishopDiagonalMoves(board, myPosition, validMoves, 1, 1);
 
-        addDiagonalMoves(board, myPosition, validMoves, 1, -1);
+        addBishopDiagonalMoves(board, myPosition, validMoves, 1, -1);
 
-        addDiagonalMoves(board, myPosition, validMoves, -1, 1);
+        addBishopDiagonalMoves(board, myPosition, validMoves, -1, 1);
 
-        addDiagonalMoves(board, myPosition, validMoves, -1, -1);
+        addBishopDiagonalMoves(board, myPosition, validMoves, -1, -1);
 
         return validMoves;
     }
 
-    private void addDiagonalMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> validMoves, int rowDirection, int colDirection) {
-        int row = myPosition.getRow() + rowDirection;
-        int col = myPosition.getColumn() + colDirection;
+    private void addBishopDiagonalMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> validMoves, int rowDirection, int colDirection) {
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
 
-        while (board.isValidPosition(row, col)) {
+        ChessPiece targetPiece;
+        do {
+            row += rowDirection;
+            col += colDirection;
+
+            if (!board.isValidPosition(row, col)) {
+                break;
+            }
+
             ChessPosition endPosition = new ChessPosition(row, col);
-            ChessPiece targetPiece = board.getPiece(endPosition);
+            targetPiece = board.getPiece(endPosition);
 
             if (targetPiece == null || targetPiece.getTeamColor() != getTeamColor()) {
                 validMoves.add(new ChessMove(myPosition, endPosition, null));
             }
 
-            if (targetPiece != null) {
-                break;
-            }
+        } while (targetPiece == null);
 
-            row += rowDirection;
-            col += colDirection;
-        }
     }
 }

@@ -39,10 +39,17 @@ public class Rook implements ChessPieceInterface {
     }
 
     private void addSideMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> validMoves, int rowDirection, int colDirection) {
-        int row = myPosition.getRow() + rowDirection;
-        int col = myPosition.getColumn() + colDirection;
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
 
-        while (board.isValidPosition(row, col)) {
+        while (true) {
+            row += rowDirection;
+            col += colDirection;
+
+            if (!board.isValidPosition(row, col)) {
+                break;
+            }
+
             ChessPosition endPosition = new ChessPosition(row, col);
             ChessPiece targetPiece = board.getPiece(endPosition);
 
@@ -53,9 +60,6 @@ public class Rook implements ChessPieceInterface {
             if (targetPiece != null) {
                 break;
             }
-
-            row += rowDirection;
-            col += colDirection;
         }
     }
 }
