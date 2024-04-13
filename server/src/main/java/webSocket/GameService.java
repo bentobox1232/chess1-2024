@@ -23,75 +23,63 @@ import java.util.Objects;
 public class GameService {
 
     private static final Gson gson = new Gson();
+    private final GameDAO gameDao;
+    private final AuthDAO authDao;
 
-    public static Connection connection;
-
-    public static GameDAO gameDao;
-
-    public static AuthDAO authDao;
-
-    static {
+    public GameService() {
+        Connection connection;
         try {
             connection = DatabaseManager.getConnection();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public GameService() {
-
         gameDao = new GameDAO(connection);
         authDao = new AuthDAO(connection);
-
     }
 
-    public static void joinPlayer(String authToken, Integer gameID, ChessGame.TeamColor teamColor, WebSocketSessions webSocketSessions){
+    public void joinPlayer(String authToken, Integer gameID, ChessGame.TeamColor teamColor, WebSocketSessions webSocketSessions) {
         try {
+            GameData gameData = getGameData(gameID);
+            AuthData authData = getAuthData(authToken);
 
-            GameData gameData = gameDao.getGameByID(gameID);
-            AuthData authData = authDao.getAuth(authToken);
-
-            if (gameData == null || authData == null){
-                Error error = new Error("Error: Invalid game ID or authToken");
-                sendMessage(webSocketSessions, gameID, authToken, error);
+            if (gameData == null || authData == null) {
+                handleErrorMessage(webSocketSessions, gameID, authToken, "Invalid game ID or authToken");
                 return;
             }
-            if ((teamColor == ChessGame.TeamColor.WHITE && !Objects.equals(gameData.getWhiteUsername(), authData.getUsername())) || (teamColor == ChessGame.TeamColor.BLACK && !Objects.equals(gameData.getBlackUsername(), authData.getUsername()))){
-                Error error = new Error("Error: Spot already taken");
-                sendMessage(webSocketSessions, gameID, authToken, error);
+
+            if (!isSpotAvailable(gameData, authData.getUsername(), teamColor)) {
+                handleErrorMessage(webSocketSessions, gameID, authToken, "Spot already taken");
                 return;
             }
-            if (gameData.getGame() == null){
-                Error error = new Error("Error: Game has already ended");
-                sendMessage(webSocketSessions, gameID, authToken, error);
+
+            if (gameData.getGame() == null) {
+                handleErrorMessage(webSocketSessions, gameID, authToken, "Game has already ended");
                 return;
             }
 
             LoadGame loadGame = new LoadGame(gameData.getGame());
             sendMessage(webSocketSessions, gameID, authToken, loadGame);
 
-            Notification notification = new Notification(authData.getUsername() + "joined game as" + teamColor.name());
+            Notification notification = new Notification(authData.getUsername() + " joined game as " + teamColor.name());
             broadcastMessage(webSocketSessions, gameID, authToken, notification);
 
         } catch (DataAccessException e) {
-            Error error = new Error("Error: Invalid Game ID or Game Does Not Exist");
-            sendMessage(webSocketSessions, gameID, authToken, error);
+            handleErrorMessage(webSocketSessions, gameID, authToken, "Invalid Game ID or Game Does Not Exist");
         }
     }
 
-    public static void joinObserver(String authToken, Integer gameID, WebSocketSessions webSocketSessions){
+    public void joinObserver(String authToken, Integer gameID, WebSocketSessions webSocketSessions) {
         try {
-            GameData gameData = gameDao.getGameByID(gameID);
-            AuthData authData = authDao.getAuth(authToken);
+            GameData gameData = getGameData(gameID);
+            AuthData authData = getAuthData(authToken);
 
-            if (gameData == null || authData == null){
-                Error error = new Error("Error: Invalid game ID or authToken");
-                sendMessage(webSocketSessions, gameID, authToken, error);
+            if (gameData == null || authData == null) {
+                handleErrorMessage(webSocketSessions, gameID, authToken, "Invalid game ID or authToken");
                 return;
             }
-            if (gameData.getGame() == null){
-                Error error = new Error("Error: Game has already ended");
-                sendMessage(webSocketSessions, gameID, authToken, error);
+
+            if (gameData.getGame() == null) {
+                handleErrorMessage(webSocketSessions, gameID, authToken, "Game has already ended");
                 return;
             }
 
@@ -102,22 +90,18 @@ public class GameService {
             broadcastMessage(webSocketSessions, gameID, authToken, notification);
 
         } catch (DataAccessException e) {
-            Error error = new Error("Error: Invalid Game ID or Game Does Not Exist");
-            sendMessage(webSocketSessions, gameID, authToken, error);
+            handleErrorMessage(webSocketSessions, gameID, authToken, "Invalid Game ID or Game Does Not Exist");
         }
     }
 
-
-
-
-    public static void leaveGame(String authToken, Integer gameID, WebSocketSessions webSocketSessions){
+    public void leaveGame(String authToken, Integer gameID, WebSocketSessions webSocketSessions) {
         try {
-            GameData gameData = gameDao.getGameByID(gameID);
-            AuthData authData = authDao.getAuth(authToken);
+            GameData gameData = getGameData(gameID);
+            AuthData authData = getAuthData(authToken);
 
             String whiteUsername = gameData.getWhiteUsername();
             String blackUsername = gameData.getBlackUsername();
-            if (Objects.equals(authData.getUsername(), gameData.getBlackUsername())){
+            if (Objects.equals(authData.getUsername(), gameData.getBlackUsername())) {
                 blackUsername = null;
             }
             if (Objects.equals(authData.getUsername(), gameData.getWhiteUsername())) {
@@ -126,103 +110,74 @@ public class GameService {
 
             gameDao.updateGame(new GameData(gameData.getGameID(), whiteUsername, blackUsername, gameData.getGameName(), gameData.getGame()));
 
-
-            Notification notification = new Notification(authData.getUsername() + "has left the game.");
+            Notification notification = new Notification(authData.getUsername() + " has left the game.");
             broadcastMessage(webSocketSessions, gameID, authToken, notification);
 
             webSocketSessions.removeSessionFromGame(gameID, authToken);
 
         } catch (DataAccessException e) {
-            Error error = new Error("Error: Invalid Game ID or Game Does Not Exist");
-            sendMessage(webSocketSessions, gameID, authToken, error);
+            handleErrorMessage(webSocketSessions, gameID, authToken, "Invalid Game ID or Game Does Not Exist");
         }
     }
 
-    public static void resignGame(String authToken, Integer gameID, WebSocketSessions webSocketSessions){
+    public void resignGame(String authToken, Integer gameID, WebSocketSessions webSocketSessions) {
         try {
-            GameData gameData = gameDao.getGameByID(gameID);
-            AuthData authData = authDao.getAuth(authToken);
+            GameData gameData = getGameData(gameID);
+            AuthData authData = getAuthData(authToken);
 
-            if (gameData.getGame() == null){
-                Error error = new Error("Error: Game has already ended");
-                sendMessage(webSocketSessions, gameID, authToken, error);
+            if (gameData.getGame() == null) {
+                handleErrorMessage(webSocketSessions, gameID, authToken, "Game has already ended");
                 return;
             }
-            if (!Objects.equals(authData.getUsername(), gameData.getBlackUsername()) && !Objects.equals(authData.getUsername(), gameData.getWhiteUsername())){
-                Error error = new Error("Error: Observers cannot resign. type leave to leave.");
-                sendMessage(webSocketSessions, gameID, authToken, error);
+
+            if (!Objects.equals(authData.getUsername(), gameData.getBlackUsername()) && !Objects.equals(authData.getUsername(), gameData.getWhiteUsername())) {
+                handleErrorMessage(webSocketSessions, gameID, authToken, "Observers cannot resign. Type leave to leave.");
                 return;
             }
 
             gameDao.updateGame(new GameData(gameData.getGameID(), gameData.getWhiteUsername(), gameData.getBlackUsername(), "GAME ENDED (" + gameData.getGameName() + ")", null));
 
-            Notification notification = new Notification(authData.getUsername() + "resigned from the game");
+            Notification notification = new Notification(authData.getUsername() + " resigned from the game");
             sendMessage(webSocketSessions, gameID, authToken, notification);
             broadcastMessage(webSocketSessions, gameID, authToken, notification);
 
             Map<String, Session> sessions = webSocketSessions.getSessionsForGame(gameID);
-            for (String authorization : sessions.keySet()){
+            for (String authorization : sessions.keySet()) {
                 webSocketSessions.removeSessionFromGame(gameID, authorization);
             }
 
-
         } catch (DataAccessException e) {
-            Error error = new Error("Error: Invalid Game ID or Game Does Not Exist");
-            sendMessage(webSocketSessions, gameID, authToken, error);
+            handleErrorMessage(webSocketSessions, gameID, authToken, "Invalid Game ID or Game Does Not Exist");
         }
     }
 
-    public static void makeMove(String command, String authToken, Integer gameID, ChessMove move, WebSocketSessions webSocketSessions){
+    public void makeMove(String authToken, Integer gameID, ChessMove move, WebSocketSessions webSocketSessions) {
         try {
-            GameData gameData = gameDao.getGameByID(gameID);
-            AuthData authData = authDao.getAuth(authToken);
+            GameData gameData = getGameData(gameID);
+            AuthData authData = getAuthData(authToken);
 
-            if (gameData.getGame() == null){
-                Error error = new Error("Error: Game has already ended");
-                sendMessage(webSocketSessions, gameID, authToken, error);
-                return;
-            }
-            if ((!Objects.equals(authData.getUsername(), gameData.getWhiteUsername()) && gameData.getGame().getTeamTurn() == ChessGame.TeamColor.WHITE) || (!Objects.equals(authData.getUsername(), gameData.getBlackUsername()) && gameData.getGame().getTeamTurn() == ChessGame.TeamColor.BLACK)){
-                Error error = new Error("Error: It is not your turn to move.");
-                sendMessage(webSocketSessions, gameID, authToken, error);
+            if (gameData.getGame() == null) {
+                handleErrorMessage(webSocketSessions, gameID, authToken, "Game has already ended");
                 return;
             }
 
-            if (gameData.getGame().isInCheckmate(ChessGame.TeamColor.WHITE) || gameData.getGame().isInCheckmate(ChessGame.TeamColor.BLACK)){
-                Error error = new Error("Error: Game is in checkmate and no other moves are allowed.");
-                sendMessage(webSocketSessions, gameID, authToken, error);
+            if ((!Objects.equals(authData.getUsername(), gameData.getWhiteUsername()) && gameData.getGame().getTeamTurn() == ChessGame.TeamColor.WHITE) ||
+                    (!Objects.equals(authData.getUsername(), gameData.getBlackUsername()) && gameData.getGame().getTeamTurn() == ChessGame.TeamColor.BLACK)) {
+                handleErrorMessage(webSocketSessions, gameID, authToken, "It is not your turn to move.");
                 return;
             }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            if(gameData.getGame().validMoves(move.getStartPosition()).contains(move)) {
-                gameData.getGame().makeMove(move);
-            } else {
-                Error error = new Error("Error: Invalid move. Make sure you are not in check and your syntax is correct by typing help.");
-                sendMessage(webSocketSessions, gameID, authToken, error);
+            if (gameData.getGame().isInCheckmate(ChessGame.TeamColor.WHITE) || gameData.getGame().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                handleErrorMessage(webSocketSessions, gameID, authToken, "Game is in checkmate and no other moves are allowed.");
                 return;
             }
+
+            if (!gameData.getGame().validMoves(move.getStartPosition()).contains(move)) {
+                handleErrorMessage(webSocketSessions, gameID, authToken, "Invalid move. Make sure you are not in check and your syntax is correct by typing help.");
+                return;
+            }
+
+            gameData.getGame().makeMove(move);
 
             gameDao.updateGame(new GameData(gameID, gameData.getWhiteUsername(), gameData.getBlackUsername(), gameData.getGameName(), gameData.getGame()));
 
@@ -233,41 +188,38 @@ public class GameService {
             Notification notification = new Notification(authData.getUsername() + " moved a piece!");
             broadcastMessage(webSocketSessions, gameID, authToken, notification);
 
-
-            if (gameData.getGame().isInCheck(ChessGame.TeamColor.WHITE) ){
-                Notification gameEvent;
-                if (gameData.getGame().isInCheckmate(ChessGame.TeamColor.WHITE) ){
-                    gameEvent = new Notification("White is currently in checkmate.\nGAME OVER");
-                } else {
-                    gameEvent = new Notification("White is currently in check!");
-                }
-
-                sendMessage(webSocketSessions, gameID, authToken, gameEvent);
-                broadcastMessage(webSocketSessions, gameID, authToken, gameEvent);
-
-            } else if (gameData.getGame().isInCheck(ChessGame.TeamColor.BLACK)){
-                Notification gameEvent;
-                if (gameData.getGame().isInCheckmate(ChessGame.TeamColor.BLACK)){
-                    gameEvent = new Notification("Black is currently in checkmate.\nGAME OVER");
-                } else {
-                    gameEvent = new Notification("Black is currently in check!");
-                }
-
-                sendMessage(webSocketSessions, gameID, authToken, gameEvent);
-                broadcastMessage(webSocketSessions, gameID, authToken, gameEvent);
+            if (gameData.getGame().isInCheck(ChessGame.TeamColor.WHITE)) {
+                handleCheckNotification(webSocketSessions, gameID, authToken, "White");
+            } else if (gameData.getGame().isInCheck(ChessGame.TeamColor.BLACK)) {
+                handleCheckNotification(webSocketSessions, gameID, authToken, "Black");
             }
 
-
         } catch (DataAccessException e) {
-            Error error = new Error("Error: Invalid Game ID or Game Does Not Exist");
-            sendMessage(webSocketSessions, gameID, authToken, error);
-        } catch (InvalidMoveException e){
-            Error error = new Error("Error: Invalid Move. Make sure it is your turn, and your letter columns and number rows are formatted correctly.");
-            sendMessage(webSocketSessions, gameID, authToken, error);
+            handleErrorMessage(webSocketSessions, gameID, authToken, "Invalid Game ID or Game Does Not Exist");
+        } catch (InvalidMoveException e) {
+            handleErrorMessage(webSocketSessions, gameID, authToken, "Invalid Move. Make sure it is your turn, and your letter columns and number rows are formatted correctly.");
         }
     }
 
-    private static void sendMessage(WebSocketSessions webSocketSessions, Integer gameID, String authToken, ServerMessage message) {
+    private GameData getGameData(Integer gameID) throws DataAccessException {
+        return gameDao.getGameByID(gameID);
+    }
+
+    private AuthData getAuthData(String authToken) throws DataAccessException {
+        return authDao.getAuth(authToken);
+    }
+
+    private boolean isSpotAvailable(GameData gameData, String username, ChessGame.TeamColor teamColor) {
+        return (teamColor == ChessGame.TeamColor.WHITE && Objects.equals(gameData.getWhiteUsername(), username)) ||
+                (teamColor == ChessGame.TeamColor.BLACK && Objects.equals(gameData.getBlackUsername(), username));
+    }
+
+    private void handleErrorMessage(WebSocketSessions webSocketSessions, Integer gameID, String authToken, String errorMessage) {
+        Error error = new Error("Error: " + errorMessage);
+        sendMessage(webSocketSessions, gameID, authToken, error);
+    }
+
+    private void sendMessage(WebSocketSessions webSocketSessions, Integer gameID, String authToken, ServerMessage message) {
         Session session = webSocketSessions.getSessionsForGame(gameID).get(authToken);
         if (session != null) {
             String jsonMessage = gson.toJson(message);
@@ -281,7 +233,7 @@ public class GameService {
         }
     }
 
-    private static void broadcastMessage(WebSocketSessions webSocketSessions, Integer gameID, String exceptThisAuthToken, ServerMessage message) {
+    private void broadcastMessage(WebSocketSessions webSocketSessions, Integer gameID, String exceptThisAuthToken, ServerMessage message) {
         for (Map.Entry<String, Session> entry : webSocketSessions.getSessionsForGame(gameID).entrySet()) {
             if (!entry.getKey().equals(exceptThisAuthToken)) {
                 String jsonMessage = gson.toJson(message);
@@ -294,4 +246,15 @@ public class GameService {
         }
     }
 
+    private void handleCheckNotification(WebSocketSessions webSocketSessions, Integer gameID, String authToken, String color) {
+        Notification gameEvent;
+        if (color.equals("White")) {
+            gameEvent = new Notification("White is currently in check!");
+        } else {
+            gameEvent = new Notification("Black is currently in check!");
+        }
+
+        sendMessage(webSocketSessions, gameID, authToken, gameEvent);
+        broadcastMessage(webSocketSessions, gameID, authToken, gameEvent);
+    }
 }
