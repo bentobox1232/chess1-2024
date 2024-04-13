@@ -2,221 +2,250 @@ package Displays;
 
 import WebSocket.GameHandler;
 import WebSocket.WebSocketFacade;
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import com.google.gson.Gson;
 import webSocketMessages.userCommands.*;
 
 import java.util.Collection;
 
+import static org.glassfish.grizzly.Interceptor.RESET;
 import static ui.EscapeSequences.*;
 
 public class Gameplay extends Display implements GameHandler {
-    WebSocketFacade wsf = new WebSocketFacade(this);
-    String authToken;
-    Integer gameID;
-    ChessGame game;
-    ChessGame.TeamColor playerColor;
-    Gson gson = new Gson();
-    BoardGetter board;
+    private final WebSocketFacade webSocketFacade;
+    private final Gson gson;
+    private final String authToken;
+    private final Integer gameID;
+    private ChessGame game;
+    private final ChessGame.TeamColor playerColor;
+    private final ChessBoard board;
+    private String[][] colors = new String[7][7];
 
-    String[][] colors = {
-            {SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY},
-            {SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE},
-            {SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY},
-            {SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE},
-            {SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY},
-            {SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE},
-            {SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY},
-            {SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE}
-    };
-
-    String[][] pieces = {
-            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}
-    };
-
+    String[][] pieces = new String[7][7];
 
     public Gameplay(String authToken, Integer gameID, String color) {
-
         this.authToken = authToken;
         this.gameID = gameID;
+        this.gson = new Gson();
+        this.webSocketFacade = new WebSocketFacade(this);
 
         if (color != null) {
-
-            if(color.equalsIgnoreCase("black")){
-                this.playerColor = ChessGame.TeamColor.BLACK;
-            } else if (color.equalsIgnoreCase("white")) {
-                this.playerColor = ChessGame.TeamColor.WHITE;
-            }
-
-            JoinPlayer joinPlayer = new JoinPlayer(this.authToken, this.gameID, this.playerColor);
-            String jsonString = this.gson.toJson(joinPlayer);
-            this.wsf.sendMessage(jsonString);
+            this.playerColor = parseTeamColor(color);
+            joinGame();
         } else {
             this.playerColor = null;
-
-            JoinObserver joinObserver = new JoinObserver(this.authToken, this.gameID);
-            String jsonString = this.gson.toJson(joinObserver);
-            this.wsf.sendMessage(jsonString);
-
-
+            joinObserver();
         }
 
-
-
-        if (this.playerColor == null || !this.playerColor.equals(ChessGame.TeamColor.WHITE)) {
-
-            this.board = (boardColors, boardPieces) -> {
-
-                String string = SET_TEXT_BOLD + SET_BG_COLOR_BLACK + "\n\t" + SET_TEXT_COLOR_BLACK +
-                        SET_BG_COLOR_LIGHT_GREY + "    H  G  F  E  D  C  B  A    " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 1 " + boardColors[0][7] + boardPieces[0][7] + boardColors[0][6] + boardPieces[0][6] + boardColors[0][5] + boardPieces[0][5] + boardColors[0][4] + boardPieces[0][4] + boardColors[0][3] + boardPieces[0][3] + boardColors[0][2] + boardPieces[0][2] + boardColors[0][1] + boardPieces[0][1] + boardColors[0][0] + boardPieces[0][0] + SET_BG_COLOR_LIGHT_GREY + " 1 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 2 " + boardColors[1][7] + boardPieces[1][7] + boardColors[1][6] + boardPieces[1][6] + boardColors[1][5] + boardPieces[1][5] + boardColors[1][4] + boardPieces[1][4] + boardColors[1][3] + boardPieces[1][3] + boardColors[1][2] + boardPieces[1][2] + boardColors[1][1] + boardPieces[1][1] + boardColors[1][0] + boardPieces[1][0] + SET_BG_COLOR_LIGHT_GREY + " 2 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 3 " + boardColors[2][7] + boardPieces[2][7] + boardColors[2][6] + boardPieces[2][6] + boardColors[2][5] + boardPieces[2][5] + boardColors[2][4] + boardPieces[2][4] + boardColors[2][3] + boardPieces[2][3] + boardColors[2][2] + boardPieces[2][2] + boardColors[2][1] + boardPieces[2][1] + boardColors[2][0] + boardPieces[2][0] + SET_BG_COLOR_LIGHT_GREY + " 3 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 4 " + boardColors[3][7] + boardPieces[3][7] + boardColors[3][6] + boardPieces[3][6] + boardColors[3][5] + boardPieces[3][5] + boardColors[3][4] + boardPieces[3][4] + boardColors[3][3] + boardPieces[3][3] + boardColors[3][2] + boardPieces[3][2] + boardColors[3][1] + boardPieces[3][1] + boardColors[3][0] + boardPieces[3][0] + SET_BG_COLOR_LIGHT_GREY + " 4 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 5 " + boardColors[4][7] + boardPieces[4][7] + boardColors[4][6] + boardPieces[4][6] + boardColors[4][5] + boardPieces[4][5] + boardColors[4][4] + boardPieces[4][4] + boardColors[4][3] + boardPieces[4][3] + boardColors[4][2] + boardPieces[4][2] + boardColors[4][1] + boardPieces[4][1] + boardColors[4][0] + boardPieces[4][0] + SET_BG_COLOR_LIGHT_GREY + " 5 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 6 " + boardColors[5][7] + boardPieces[5][7] + boardColors[5][6] + boardPieces[5][6] + boardColors[5][5] + boardPieces[5][5] + boardColors[5][4] + boardPieces[5][4] + boardColors[5][3] + boardPieces[5][3] + boardColors[5][2] + boardPieces[5][2] + boardColors[5][1] + boardPieces[5][1] + boardColors[5][0] + boardPieces[5][0] + SET_BG_COLOR_LIGHT_GREY + " 6 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 7 " + boardColors[6][7] + boardPieces[6][7] + boardColors[6][6] + boardPieces[6][6] + boardColors[6][5] + boardPieces[6][5] + boardColors[6][4] + boardPieces[6][4] + boardColors[6][3] + boardPieces[6][3] + boardColors[6][2] + boardPieces[6][2] + boardColors[6][1] + boardPieces[6][1] + boardColors[6][0] + boardPieces[6][0] + SET_BG_COLOR_LIGHT_GREY + " 7 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 8 " + boardColors[7][7] + boardPieces[7][7] + boardColors[7][6] + boardPieces[7][6] + boardColors[7][5] + boardPieces[7][5] + boardColors[7][4] + boardPieces[7][4] + boardColors[7][3] + boardPieces[7][3] + boardColors[7][2] + boardPieces[7][2] + boardColors[7][1] + boardPieces[7][1] + boardColors[7][0] + boardPieces[7][0] + SET_BG_COLOR_LIGHT_GREY + " 8 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + "    H  G  F  E  D  C  B  A    " + RESET_BG_COLOR + "\n\t" + RESET_TEXT_BOLD_FAINT + RESET_TEXT_COLOR;
-
-
-                System.out.println(string);
-
-            };
-
-        } else {
-            this.board = (boardColors, boardPieces) -> {
-
-                String string = SET_TEXT_BOLD + SET_BG_COLOR_BLACK + "\n\t" + SET_TEXT_COLOR_BLACK +
-                        SET_BG_COLOR_LIGHT_GREY + "    A  B  C  D  E  F  G  H    " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 8 " + boardColors[7][0] + boardPieces[7][0] + boardColors[7][1] + boardPieces[7][1] + boardColors[7][2] + boardPieces[7][2] + boardColors[7][3] + boardPieces[7][3] + boardColors[7][4] + boardPieces[7][4] + boardColors[7][5] + boardPieces[7][5] + boardColors[7][6] + boardPieces[7][6] + boardColors[7][7] + boardPieces[7][7] + SET_BG_COLOR_LIGHT_GREY + " 8 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 7 " + boardColors[6][0] + boardPieces[6][0] + boardColors[6][1] + boardPieces[6][1] + boardColors[6][2] + boardPieces[6][2] + boardColors[6][3] + boardPieces[6][3] + boardColors[6][4] + boardPieces[6][4] + boardColors[6][5] + boardPieces[6][5] + boardColors[6][6] + boardPieces[6][6] + boardColors[6][7] + boardPieces[6][7] + SET_BG_COLOR_LIGHT_GREY + " 7 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 6 " + boardColors[5][0] + boardPieces[5][0] + boardColors[5][1] + boardPieces[5][1] + boardColors[5][2] + boardPieces[5][2] + boardColors[5][3] + boardPieces[5][3] + boardColors[5][4] + boardPieces[5][4] + boardColors[5][5] + boardPieces[5][5] + boardColors[5][6] + boardPieces[5][6] + boardColors[5][7] + boardPieces[5][7] + SET_BG_COLOR_LIGHT_GREY + " 6 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 5 " + boardColors[4][0] + boardPieces[4][0] + boardColors[4][1] + boardPieces[4][1] + boardColors[4][2] + boardPieces[4][2] + boardColors[4][3] + boardPieces[4][3] + boardColors[4][4] + boardPieces[4][4] + boardColors[4][5] + boardPieces[4][5] + boardColors[4][6] + boardPieces[4][6] + boardColors[4][7] + boardPieces[4][7] + SET_BG_COLOR_LIGHT_GREY + " 5 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 4 " + boardColors[3][0] + boardPieces[3][0] + boardColors[3][1] + boardPieces[3][1] + boardColors[3][2] + boardPieces[3][2] + boardColors[3][3] + boardPieces[3][3] + boardColors[3][4] + boardPieces[3][4] + boardColors[3][5] + boardPieces[3][5] + boardColors[3][6] + boardPieces[3][6] + boardColors[3][7] + boardPieces[3][7] + SET_BG_COLOR_LIGHT_GREY + " 4 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 3 " + boardColors[2][0] + boardPieces[2][0] + boardColors[2][1] + boardPieces[2][1] + boardColors[2][2] + boardPieces[2][2] + boardColors[2][3] + boardPieces[2][3] + boardColors[2][4] + boardPieces[2][4] + boardColors[2][5] + boardPieces[2][5] + boardColors[2][6] + boardPieces[2][6] + boardColors[2][7] + boardPieces[2][7] + SET_BG_COLOR_LIGHT_GREY + " 3 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 2 " + boardColors[1][0] + boardPieces[1][0] + boardColors[1][1] + boardPieces[1][1] + boardColors[1][2] + boardPieces[1][2] + boardColors[1][3] + boardPieces[1][3] + boardColors[1][4] + boardPieces[1][4] + boardColors[1][5] + boardPieces[1][5] + boardColors[1][6] + boardPieces[1][6] + boardColors[1][7] + boardPieces[1][7] + SET_BG_COLOR_LIGHT_GREY + " 2 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + " 1 " + boardColors[0][0] + boardPieces[0][0] + boardColors[0][1] + boardPieces[0][1] + boardColors[0][2] + boardPieces[0][2] + boardColors[0][3] + boardPieces[0][3] + boardColors[0][4] + boardPieces[0][4] + boardColors[0][5] + boardPieces[0][5] + boardColors[0][6] + boardPieces[0][6] + boardColors[0][7] + boardPieces[0][7] + SET_BG_COLOR_LIGHT_GREY + " 1 " + RESET_BG_COLOR + "\n\t" +
-                        SET_BG_COLOR_LIGHT_GREY + "    A  B  C  D  E  F  G  H    " + RESET_BG_COLOR + "\n\t" + RESET_TEXT_BOLD_FAINT + RESET_TEXT_COLOR;
-
-                System.out.println(string);
-
-            };
-        }
-
+        this.game = new ChessGame();
+        this.board = (boardColors, boardPieces) -> printBoard(boardColors, boardPieces);
     }
+
+
 
     @Override
     protected Boolean evaluate(String[] parsedInput) {
-
-
-
-        if (playerColor != null && game.isInCheckmate(playerColor)){
-
-        }
-
         switch (parsedInput[0]) {
             case "help":
-                System.out.println( SET_TEXT_COLOR_RED + "\thelp" + SET_TEXT_COLOR_LIGHT_GREY + " - List all valid commands" + SET_TEXT_COLOR_RED + "\n\tr" + SET_TEXT_COLOR_LIGHT_GREY + " - Redraws the chess board" + SET_TEXT_COLOR_RED + "\n\tleave" + SET_TEXT_COLOR_LIGHT_GREY + " - Temporarily leaves the game session" + SET_TEXT_COLOR_RED + "\n\tm <STARTING_COLUMN><STARTING_ROW>  <TARGET_COLUMN><TARGET_ROW>" + SET_TEXT_COLOR_LIGHT_GREY + " - Moves a piece from the starting location to the target location." +  SET_TEXT_COLOR_RED +"\n\th <SELECTED_PIECE'S_COLUMN> <SELECTED_PIECE'S_ROW>" + SET_TEXT_COLOR_LIGHT_GREY + " - Highlights all available moves for the selected piece"+  SET_TEXT_COLOR_RED +"\n\tresign" + SET_TEXT_COLOR_LIGHT_GREY + " - Forfeits the game");
+                printHelpMessage();
                 break;
             case "r":
-                this.board.printBoard(colors, pieces);
+                board.getBoard();
                 break;
             case "leave":
-                Leave leave = new Leave(this.authToken, this.gameID);
-                String leaveString = this.gson.toJson(leave);
-                this.wsf.sendMessage(leaveString);
-                this.wsf.disconnect();
+                leaveGame();
                 return true;
             case "m":
-                if (playerColor != ChessGame.TeamColor.WHITE && playerColor != ChessGame.TeamColor.BLACK){
-                    System.out.println(SET_TEXT_COLOR_LIGHT_GREY + "Observers cannot move pieces on the board.");
-                    break;
-                }
-
-                ChessPosition startPosition = getPosition(parsedInput[1]);
-                ChessPosition endPosition = getPosition(parsedInput[2]);
-
-                if (startPosition.getColumn() > 8 || startPosition.getColumn() < 1 || startPosition.getRow() > 8 || startPosition.getRow() < 1 || endPosition.getColumn() > 8 || endPosition.getColumn() < 1 || endPosition.getRow() > 8 || endPosition.getRow() < 1 ) {
-                    System.out.println(SET_TEXT_COLOR_LIGHT_GREY + "Invalid move. make sure it is formatted correctly with spaces between.");
-                    break;
-                }
-
-                MakeMove makeMove = new MakeMove(this.authToken, this.gameID, new ChessMove(startPosition, endPosition, null));
-                String makeMoveString = this.gson.toJson(makeMove);
-                this.wsf.sendMessage(makeMoveString);
+                makeMove(parsedInput);
                 break;
             case "resign":
-                Resign resign = new Resign(this.authToken, this.gameID);
-                String resignString = this.gson.toJson(resign);
-                this.wsf.sendMessage(resignString);
-                this.wsf.disconnect();
+                resignGame();
                 return true;
             case "h":
-                ChessPosition highlightPosition = getPosition(parsedInput[1]);
-
-                if (highlightPosition.getColumn() > 7 || highlightPosition.getColumn() < 0 || highlightPosition.getRow() > 7 || highlightPosition.getRow() < 0 ) {
-                    System.out.println(SET_TEXT_COLOR_LIGHT_GREY + "Invalid selection. make sure it is formatted correctly with the right location on the board.");
-                    break;
-                }
-
-                highlightBoard(highlightPosition);
+                highlightMoves(parsedInput);
                 break;
             default:
-                System.out.println(SET_TEXT_COLOR_LIGHT_GREY + "Invalid command. Type help for more information.");
+                System.out.println("Invalid command. Type 'help' for more information.");
         }
         return false;
     }
 
-    private void highlightBoard(ChessPosition startPosition){
+    private ChessPosition parsePosition(String input) {
+        if (input.length() != 2) {
+            System.out.println("Invalid position format. Please use the format 'LetterNumber', e.g., 'a1'.");
+            return null;
+        }
 
-        if (playerColor != null && playerColor == ChessGame.TeamColor.WHITE && game.getBoard().chessBoard[startPosition.getRow()][startPosition.getColumn()] == null){
-            System.out.println(SET_TEXT_COLOR_LIGHT_GREY + "no piece at specified location.");
+        char fileChar = input.charAt(0);
+        char rankChar = input.charAt(1);
+
+        if (fileChar < 'a' || fileChar > 'h' || rankChar < '1' || rankChar > '8') {
+            System.out.println("Invalid position. File must be between 'a' and 'h', and rank must be between '1' and '8'.");
+            return null;
+        }
+
+        int row = 8 - (rankChar - '1');
+        int col = fileChar - 'a' + 1;
+
+        return new ChessPosition(row, col);
+    }
+
+
+    private void highlightMoves(String[] parsedInput) {
+        if (parsedInput.length != 2) {
+            System.out.println("Invalid command format. Use 'h <position>'.");
             return;
         }
 
-        ChessPosition actualPosition = new ChessPosition(startPosition.getRow() + 1, startPosition.getColumn() + 1);
-
-        Collection<ChessMove> potentialMoves = game.validMoves(actualPosition);
-
-        if (potentialMoves.isEmpty()){
-            System.out.println(SET_TEXT_COLOR_LIGHT_GREY + "no valid moves");
+        ChessPosition position = parsePosition(parsedInput[1]);
+        if (position == null) {
+            System.out.println("Invalid position format. Use 'h <position>'.");
             return;
         }
 
+        if (playerColor == null || playerColor == ChessGame.TeamColor.WHITE) {
+            System.out.println("Observers cannot highlight moves on the board.");
+            return;
+        }
 
+        Collection<ChessMove> potentialMoves = game.validMoves(position);
+
+        if (potentialMoves.isEmpty()) {
+            System.out.println("No valid moves for the piece at " + position.toString() + ".");
+            return;
+        }
+
+        String[][] colors = new String[7][7];
 
         for (ChessMove move : potentialMoves) {
-
             int rowModifier = move.getEndPosition().getRow() - 1;
             int colModifier = move.getEndPosition().getColumn() - 1;
-            if (playerColor != ChessGame.TeamColor.BLACK){
+            if (playerColor != ChessGame.TeamColor.BLACK) {
                 rowModifier = move.getEndPosition().getRow() - 1;
             } else {
                 colModifier = move.getEndPosition().getColumn();
             }
 
-
             String color = colors[rowModifier][colModifier];
-            if (color.equals(SET_BG_COLOR_WHITE)){
+            if (color.equals(SET_BG_COLOR_WHITE)) {
                 colors[rowModifier][colModifier] = SET_BG_COLOR_GREEN;
-            } else if (color.equals(SET_BG_COLOR_LIGHT_GREY)){
+            } else if (color.equals(SET_BG_COLOR_LIGHT_GREY)) {
                 colors[rowModifier][colModifier] = SET_BG_COLOR_DARK_GREEN;
             }
-
         }
 
-        this.board.printBoard(colors, pieces);
+
+        printBoard(colors, pieces);
+
+        // Reset colors after highlighting
+        resetColors();
+    }
+
+    private void resetColors() {
+        this.colors = new String[][]{
+                {SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY},
+                {SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE},
+                {SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY},
+                {SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE},
+                {SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY},
+                {SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE},
+                {SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY},
+                {SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE}
+        };
+    }
+
+
+    private void printHelpMessage() {
+        System.out.println("Available commands:");
+        System.out.println("help\t\t\tDisplay this help message");
+        System.out.println("r\t\t\tRefresh the board");
+        System.out.println("leave\t\t\tLeave the current game");
+        System.out.println("m <start> <end>\tMake a move from start to end (e.g., m e2 e4)");
+        System.out.println("resign\t\t\tResign the game");
+        System.out.println("h <position>\t\tHighlight valid moves for the piece at the specified position (e.g., h e2)");
+    }
+
+    private ChessGame.TeamColor parseTeamColor(String color) {
+        return color.equalsIgnoreCase("black") ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+    }
+
+    private void joinGame() {
+        JoinPlayer joinPlayer = new JoinPlayer(authToken, gameID, playerColor);
+        String jsonString = gson.toJson(joinPlayer);
+        webSocketFacade.sendMessage(jsonString);
+    }
+
+    private void joinObserver() {
+        JoinObserver joinObserver = new JoinObserver(authToken, gameID);
+        String jsonString = gson.toJson(joinObserver);
+        webSocketFacade.sendMessage(jsonString);
+    }
+
+    private void leaveGame() {
+        Leave leave = new Leave(authToken, gameID);
+        String leaveString = gson.toJson(leave);
+        webSocketFacade.sendMessage(leaveString);
+        webSocketFacade.disconnect();
+    }
+
+    private void makeMove(String[] parsedInput) {
+        if (playerColor == null || playerColor != ChessGame.TeamColor.WHITE) {
+            System.out.println("Observers cannot move pieces on the board.");
+            return;
+        }
+
+        ChessPosition startPosition = parsePosition(parsedInput[1]);
+        ChessPosition endPosition = parsePosition(parsedInput[2]);
+
+        if (startPosition == null || endPosition == null) {
+            System.out.println("Invalid move format. Use 'm <start> <end>'.");
+            return;
+        }
+
+        MakeMove makeMove = new MakeMove(authToken, gameID, new ChessMove(startPosition, endPosition, null));
+        String makeMoveString = gson.toJson(makeMove);
+        webSocketFacade.sendMessage(makeMoveString);
+    }
+
+    private void resignGame() {
+        Resign resign = new Resign(authToken, gameID);
+        String resignString = gson.toJson(resign);
+        webSocketFacade.sendMessage(resignString);
+        webSocketFacade.disconnect();
+    }
+
+    private void highlightBoard(ChessPosition startPosition) {
+        if (playerColor != null && playerColor == ChessGame.TeamColor.WHITE && game.getBoard().chessBoard[startPosition.getRow()][startPosition.getColumn()] == null) {
+            System.out.println(SET_TEXT_COLOR_LIGHT_GREY + "No piece at specified location.");
+            return;
+        }
+
+        ChessPosition actualPosition = new ChessPosition(startPosition.getRow() + 1, startPosition.getColumn() + 1);
+        Collection<ChessMove> potentialMoves = game.validMoves(actualPosition);
+
+        if (potentialMoves.isEmpty()) {
+            System.out.println(SET_TEXT_COLOR_LIGHT_GREY + "No valid moves.");
+            return;
+        }
+
+        for (ChessMove move : potentialMoves) {
+            int rowModifier = move.getEndPosition().getRow() - 1;
+            int colModifier = move.getEndPosition().getColumn() - 1;
+            if (playerColor != ChessGame.TeamColor.BLACK) {
+                rowModifier = move.getEndPosition().getRow() - 1;
+            } else {
+                colModifier = move.getEndPosition().getColumn();
+            }
+
+            String color = colors[rowModifier][colModifier];
+            if (color.equals(SET_BG_COLOR_WHITE)) {
+                colors[rowModifier][colModifier] = SET_BG_COLOR_GREEN;
+            } else if (color.equals(SET_BG_COLOR_LIGHT_GREY)) {
+                colors[rowModifier][colModifier] = SET_BG_COLOR_DARK_GREEN;
+            }
+        }
+
+        printBoard(colors, pieces);
 
         this.colors = new String[][]{
                 {SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY, SET_BG_COLOR_WHITE, SET_BG_COLOR_LIGHT_GREY},
@@ -234,41 +263,21 @@ public class Gameplay extends Display implements GameHandler {
         int row = extractNumber(coordinates);
         int col = 0;
 
-
-        switch (coordinates.toLowerCase().charAt(0)){
-            case 'a':
-                col = 1;
-                break;
-            case 'b':
-                col = 2;
-                break;
-            case 'c':
-                col = 3;
-                break;
-            case 'd':
-                col = 4;
-                break;
-            case 'e':
-                col = 5;
-                break;
-            case 'f':
-                col = 6;
-                break;
-            case 'g':
-                col = 7;
-                break;
-            case 'h':
-                col = 8;
-                break;
-            default:
-
+        switch (Character.toLowerCase(coordinates.charAt(0))) {
+            case 'a' -> col = 1;
+            case 'b' -> col = 2;
+            case 'c' -> col = 3;
+            case 'd' -> col = 4;
+            case 'e' -> col = 5;
+            case 'f' -> col = 6;
+            case 'g' -> col = 7;
+            case 'h' -> col = 8;
         }
-
 
         return new ChessPosition(row, col);
     }
 
-    public static int extractNumber(String input) {
+    private int extractNumber(String input) {
         // Regular expression to match the number
         String regex = "\\d+";
 
@@ -285,40 +294,24 @@ public class Gameplay extends Display implements GameHandler {
         return -1; // or throw an exception, or return a default value, etc.
     }
 
+
     @Override
     public void updateGame(ChessGame game) {
         this.game = game;
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-
                 String piece = EMPTY;
 
                 if (game.getBoard().chessBoard[i][j] != null) {
                     boolean pieceIsWhite = game.getBoard().chessBoard[i][j].getTeamColor() == ChessGame.TeamColor.WHITE;
-
                     switch (game.getBoard().chessBoard[i][j].getPieceType()) {
-                        case ChessPiece.PieceType.PAWN:
-                            piece = pieceIsWhite ? WHITE_PAWN : BLACK_PAWN;
-                            break;
-                        case ChessPiece.PieceType.KNIGHT:
-                            piece = pieceIsWhite ? WHITE_KNIGHT : BLACK_KNIGHT;
-                            break;
-                        case ChessPiece.PieceType.ROOK:
-                            piece = pieceIsWhite ? WHITE_ROOK : BLACK_ROOK;
-                            break;
-                        case ChessPiece.PieceType.BISHOP:
-                            piece = pieceIsWhite ? WHITE_BISHOP : BLACK_BISHOP;
-                            break;
-                        case ChessPiece.PieceType.QUEEN:
-                            piece = pieceIsWhite ? WHITE_QUEEN : BLACK_QUEEN;
-                            break;
-                        case ChessPiece.PieceType.KING:
-                            piece = pieceIsWhite ? WHITE_KING : BLACK_KING;
-                            break;
-                        default:
-                            piece = EMPTY;
-                            break;
+                        case PAWN -> piece = pieceIsWhite ? WHITE_PAWN : BLACK_PAWN;
+                        case KNIGHT -> piece = pieceIsWhite ? WHITE_KNIGHT : BLACK_KNIGHT;
+                        case ROOK -> piece = pieceIsWhite ? WHITE_ROOK : BLACK_ROOK;
+                        case BISHOP -> piece = pieceIsWhite ? WHITE_BISHOP : BLACK_BISHOP;
+                        case QUEEN -> piece = pieceIsWhite ? WHITE_QUEEN : BLACK_QUEEN;
+                        case KING -> piece = pieceIsWhite ? WHITE_KING : BLACK_KING;
                     }
                 }
 
@@ -327,21 +320,32 @@ public class Gameplay extends Display implements GameHandler {
         }
 
         System.out.println(ERASE_SCREEN);
-        this.board.printBoard(colors, pieces);
+        printBoard(colors, pieces);
     }
-
 
     @Override
     public void printMessage(String message) {
         System.out.println(ERASE_SCREEN);
-        this.board.printBoard(colors, pieces);
+        printBoard(colors, pieces);
         System.out.println(SET_TEXT_COLOR_LIGHT_GREY + message);
     }
 
-    @FunctionalInterface
-    interface BoardGetter {
-        void printBoard(String[][] boardColors, String[][] boardPieces);
+    private void printBoard(String[][] boardColors, String[][] boardPieces) {
+        StringBuilder horizontalLine = new StringBuilder("  ---------------------------------");
+        System.out.println(horizontalLine);
+        for (int i = 0; i < 8; i++) {
+            System.out.print((8 - i) + " ");
+            for (int j = 0; j < 8; j++) {
+                if ((i + j) % 2 == 0) {
+                    System.out.print(SET_TEXT_COLOR_BLACK + boardColors[i][j] + boardPieces[i][j] + RESET + " ");
+                } else {
+                    System.out.print(SET_TEXT_COLOR_WHITE + boardColors[i][j] + boardPieces[i][j] + RESET + " ");
+                }
+            }
+            System.out.println(SET_TEXT_COLOR_WHITE + "|" + RESET);
+            System.out.println(horizontalLine);
+        }
+        System.out.println("    a   b   c   d   e   f   g   h");
     }
-
 
 }

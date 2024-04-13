@@ -7,26 +7,27 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY;
 
 public abstract class Display {
 
-    public void start() throws Exception {
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
+    private static final Scanner scanner = new Scanner(System.in);
 
+    public void start() throws Exception {
+        while (true) {
             String line = scanner.nextLine().toLowerCase();
             String[] arr = line.split(" ");
 
+            clearScreen();
+
             System.out.print(SET_TEXT_COLOR_LIGHT_GREY + "\n>> ");
 
-            System.out.println(ERASE_SCREEN);
-
-
-
             Boolean terminate = evaluate(arr);
-
-            if (terminate) { return; }
-
+            if (terminate) {
+                return;
+            }
         }
     }
 
-    protected abstract Boolean evaluate(String[] arr) throws Exception;
+    private void clearScreen() {
+        System.out.print(ERASE_SCREEN);
+    }
 
+    protected abstract Boolean evaluate(String[] arr) throws Exception;
 }
