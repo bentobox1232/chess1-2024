@@ -7,6 +7,8 @@ import com.google.gson.Gson;
 import webSocketMessages.userCommands.*;
 
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.glassfish.grizzly.Interceptor.RESET;
 import static ui.EscapeSequences.*;
@@ -18,7 +20,6 @@ public class Gameplay extends Display implements GameHandler {
     private final Integer gameID;
     private ChessGame game;
     private final ChessGame.TeamColor playerColor;
-    private final ChessBoard board;
     private String[][] colors = new String[7][7];
 
     String[][] pieces = new String[7][7];
@@ -38,7 +39,6 @@ public class Gameplay extends Display implements GameHandler {
         }
 
         this.game = new ChessGame();
-        this.board = (boardColors, boardPieces) -> printBoard(boardColors, boardPieces);
     }
 
 
@@ -50,6 +50,7 @@ public class Gameplay extends Display implements GameHandler {
                 printHelpMessage();
                 break;
             case "r":
+                ChessBoard board = new ChessBoard();
                 board.getBoard();
                 break;
             case "leave":
@@ -282,8 +283,8 @@ public class Gameplay extends Display implements GameHandler {
         String regex = "\\d+";
 
         // Using Pattern and Matcher to find the number
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
-        java.util.regex.Matcher matcher = pattern.matcher(input);
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
 
         // If a number is found, parse it and return
         if (matcher.find()) {
