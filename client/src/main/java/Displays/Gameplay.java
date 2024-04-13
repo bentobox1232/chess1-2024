@@ -1,4 +1,4 @@
-package REPLS;
+package Displays;
 
 import WebSocket.GameHandler;
 import WebSocket.WebSocketFacade;
@@ -13,7 +13,7 @@ import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 
-public class Gameplay extends REPL implements GameHandler {
+public class Gameplay extends Display implements GameHandler {
     WebSocketFacade wsf = new WebSocketFacade(this);
     String authToken;
     Integer gameID;

@@ -1,4 +1,4 @@
-package REPLS;
+package Displays;
 
 import Server.ServerFacade;
 import model.GameData;
@@ -10,7 +10,7 @@ import java.util.List;
 
 import static ui.EscapeSequences.*;
 
-public class PostloginUI extends REPL {
+public class PostLogin extends Display {
 
     public static String authToken = null;
 

@@ -1,11 +1,11 @@
-package REPLS;
+package Displays;
 
 import java.util.Scanner;
 
 import static ui.EscapeSequences.ERASE_SCREEN;
 import static ui.EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY;
 
-public abstract class REPL {
+public abstract class Display {
 
     public void start() throws Exception {
         Scanner scanner = new Scanner(System.in);

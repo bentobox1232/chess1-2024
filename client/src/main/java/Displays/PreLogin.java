@@ -1,4 +1,4 @@
-package REPLS;
+package Displays;
 
 import Server.ServerFacade;
 import result.LoginResult;
@@ -7,7 +7,7 @@ import result.RegisterResult;
 import static ui.EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY;
 import static ui.EscapeSequences.SET_TEXT_COLOR_RED;
 
-public class PreloginUI extends REPL {
+public class PreLogin extends Display {
 
     @Override
     protected Boolean evaluate(String[] arr) throws Exception {
@@ -24,8 +24,8 @@ public class PreloginUI extends REPL {
                     System.out.println("Username or Password is incorrect ");
                 } else {
                     System.out.println("Welcome "+ resultL.getUsername());
-                    PostloginUI repl = new PostloginUI();
-                    PostloginUI.authToken = resultL.getAuthToken();
+                    PostLogin repl = new PostLogin();
+                    PostLogin.authToken = resultL.getAuthToken();
                     repl.start();
                 }
                 break;
@@ -34,8 +34,8 @@ public class PreloginUI extends REPL {
                 if (resultR == null) {
                     System.out.println("User Already Exist " + arr[1]);
                 } else {
-                    PostloginUI repl = new PostloginUI();
-                    PostloginUI.authToken = resultR.getAuthToken();
+                    PostLogin repl = new PostLogin();
+                    PostLogin.authToken = resultR.getAuthToken();
                     repl.start();
                 }
                 break;

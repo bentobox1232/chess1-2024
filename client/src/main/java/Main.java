@@ -1,4 +1,4 @@
-import REPLS.PreloginUI;
+import Displays.PreLogin;
 import Server.ServerFacade;
 
 public class Main {
@@ -9,7 +9,7 @@ public class Main {
 
         ServerFacade.baseUrl = ServerFacade.baseUrl + "8080";
 
-        PreloginUI repl = new PreloginUI();
+        PreLogin repl = new PreLogin();
         repl.start();
 
         /*         server.stop();  */
